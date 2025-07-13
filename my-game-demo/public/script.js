@@ -6,13 +6,13 @@ let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
 
-// -----------------------------
-// 🧭 방향키 지속 이동 + 대각선
-// -----------------------------
-const pressedKeys = new Set();
-let moveInterval = null;
 const speed = 5;
+const pressedKeys = new Set();
+let moveAnimationFrame = null;
 
+// -----------------------------
+// 📌 방향키 이동 처리
+// -----------------------------
 document.addEventListener('keydown', (e) => {
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
     pressedKeys.add(e.key);
@@ -28,7 +28,6 @@ document.addEventListener('keyup', (e) => {
   }
 });
 
-// 방향 전환: 좌/우 키만 고려
 function updateCharacterDirection() {
   if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) {
     character.style.transform = 'scaleX(-1)';
@@ -37,8 +36,14 @@ function updateCharacterDirection() {
   }
 }
 
-// 이동 루프 시작
-let moveAnimationFrame = null;
+function getCurrentPosition() {
+  const rect = character.getBoundingClientRect();
+  const areaRect = gameArea.getBoundingClientRect();
+  return {
+    x: rect.left - areaRect.left,
+    y: rect.top - areaRect.top,
+  };
+}
 
 function startMoving() {
   if (moveAnimationFrame !== null) return;
@@ -46,16 +51,17 @@ function startMoving() {
 }
 
 function moveLoop() {
-  let x = parseInt(character.style.left) || 0;
-  let y = parseInt(character.style.top) || 0;
+  const pos = getCurrentPosition();
+  let x = pos.x;
+  let y = pos.y;
 
   let dx = 0;
   let dy = 0;
 
-  if (pressedKeys.has('ArrowLeft'))  dx -= 1;
+  if (pressedKeys.has('ArrowLeft')) dx -= 1;
   if (pressedKeys.has('ArrowRight')) dx += 1;
-  if (pressedKeys.has('ArrowUp'))    dy -= 1;
-  if (pressedKeys.has('ArrowDown'))  dy += 1;
+  if (pressedKeys.has('ArrowUp')) dy -= 1;
+  if (pressedKeys.has('ArrowDown')) dy += 1;
 
   if (dx !== 0 || dy !== 0) {
     const length = Math.sqrt(dx * dx + dy * dy);
@@ -65,7 +71,6 @@ function moveLoop() {
     x += dx;
     y += dy;
 
-    // 경계 제한
     x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
     y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
 
@@ -83,6 +88,46 @@ function stopMoving() {
     moveAnimationFrame = null;
   }
 }
+
+// -----------------------------
+// 📱 모바일 & PC 버튼 제어
+// -----------------------------
+const buttons = document.querySelectorAll('#buttons button');
+
+buttons.forEach(button => {
+  const dir = button.textContent;
+
+  const keyMap = {
+    '↑': 'ArrowUp',
+    '↓': 'ArrowDown',
+    '←': 'ArrowLeft',
+    '→': 'ArrowRight'
+  };
+
+  const key = keyMap[dir];
+
+  const press = () => {
+    pressedKeys.add(key);
+    updateCharacterDirection();
+    startMoving();
+  };
+
+  const release = () => {
+    pressedKeys.delete(key);
+    if (pressedKeys.size === 0) stopMoving();
+  };
+
+  button.addEventListener('mousedown', press);
+  button.addEventListener('mouseup', release);
+  button.addEventListener('mouseleave', release);
+
+  button.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    press();
+  }, { passive: false });
+
+  button.addEventListener('touchend', release);
+});
 
 // -----------------------------
 // 🧲 마우스 드래그
@@ -120,7 +165,7 @@ document.addEventListener('mouseup', () => {
 });
 
 // -----------------------------
-// 📱 터치 드래그
+// 📲 터치 드래그
 // -----------------------------
 character.addEventListener('touchstart', (e) => {
   isDragging = true;

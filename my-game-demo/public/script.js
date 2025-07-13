@@ -14,12 +14,17 @@ const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
 function updateCharacterPosition(x, y) {
+  console.log(`Updating position to: ${x}, ${y}`);
   characterX = x;
   characterY = y;
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
   socket.emit('drag', { x, y });
 }
+
+console.log("Pressed keys:", [...pressedKeys]);
+console.log("Delta:", dx, dy);
+console.log("Current pos:", characterX, characterY);
 
 
 function normalizeKey(key) {

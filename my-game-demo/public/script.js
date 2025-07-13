@@ -22,7 +22,8 @@ document.addEventListener('keydown', (e) => {
       case 'ArrowUp': direction = 'up'; break;
       case 'ArrowDown': direction = 'down'; break;
     }
-
+        move(direction);
+  }
 });
 
 let isDragging = false;

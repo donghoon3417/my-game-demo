@@ -1,58 +1,55 @@
 const socket = io();
 const character = document.getElementById('character');
 
-// 서버에서 좌표를 수신해서 화면에 반영
+// 서버에서 좌표 받기
 socket.on('position', (pos) => {
   character.style.left = `${pos.x}px`;
   character.style.top = `${pos.y}px`;
 });
 
-// 방향키로 이동
+// 방향키 이동
 document.addEventListener('keydown', (e) => {
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
     let direction;
     switch (e.key) {
-      case 'ArrowLeft':
-        direction = 'left';
-        break;
-      case 'ArrowRight':
-        direction = 'right';
-        break;
-      case 'ArrowUp':
-        direction = 'up';
-        break;
-      case 'ArrowDown':
-        direction = 'down';
-        break;
+      case 'ArrowLeft': direction = 'left'; break;
+      case 'ArrowRight': direction = 'right'; break;
+      case 'ArrowUp': direction = 'up'; break;
+      case 'ArrowDown': direction = 'down'; break;
     }
-    move(direction);
+    socket.emit('move', { direction });
   }
 });
 
-// 서버로 이동 방향 전송
-function move(direction) {
-  socket.emit('move', { direction });
-}
-
-// 마우스 드래그 이동
+// 마우스 드래그
 let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
 
 character.addEventListener('mousedown', (e) => {
+  e.preventDefault(); // 브라우저 기본 동작 방지 (중요)
   isDragging = true;
-  offsetX = e.offsetX;
-  offsetY = e.offsetY;
+
+  const rect = character.getBoundingClientRect();
+  offsetX = e.clientX - rect.left;
+  offsetY = e.clientY - rect.top;
 });
 
 document.addEventListener('mousemove', (e) => {
   if (isDragging) {
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
+    const gameArea = document.getElementById('game-area');
+    const areaRect = gameArea.getBoundingClientRect();
+
+    let x = e.clientX - areaRect.left - offsetX;
+    let y = e.clientY - areaRect.top - offsetY;
+
+    // 경계 조건 체크
+    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
+    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+
     character.style.left = `${x}px`;
     character.style.top = `${y}px`;
 
-    // 서버에 drag 좌표 전송
     socket.emit('drag', { x, y });
   }
 });

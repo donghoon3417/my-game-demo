@@ -16,15 +16,8 @@ let moveAnimationFrame = null;
 function updateCharacterPosition(x, y) {
   characterX = x;
   characterY = y;
-  const scaleX = getDirectionScaleX();
-  character.style.transform = `translate(${x}px, ${y}px) scaleX(${scaleX})`;
+  character.style.transform = `translate(${x}px, ${y}px)`;
   socket.emit('drag', { x, y });
-}
-
-function getDirectionScaleX() {
-  if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) return 1;
-  if (pressedKeys.has('ArrowRight') && !pressedKeys.has('ArrowLeft')) return -1;
-  return 1;
 }
 
 function normalizeKey(key) {
@@ -42,7 +35,6 @@ document.addEventListener('keydown', (e) => {
   if (validKeys.includes(e.key)) {
     const key = normalizeKey(e.key);
     pressedKeys.add(key);
-    updateCharacterDirection();
     startMoving();
   }
 });
@@ -52,12 +44,6 @@ document.addEventListener('keyup', (e) => {
   pressedKeys.delete(key);
   if (pressedKeys.size === 0) stopMoving();
 });
-
-function updateCharacterDirection() {
-  const scaleX = getDirectionScaleX();
-  const [x, y] = [characterX, characterY];
-  character.style.transform = `translate(${x}px, ${y}px) scaleX(${scaleX})`;
-}
 
 function startMoving() {
   if (moveAnimationFrame !== null) return;
@@ -97,7 +83,7 @@ function stopMoving() {
   }
 }
 
-// 📱 모바일 버튼
+// 📱 버튼 이동 처리
 const buttons = document.querySelectorAll('#buttons button');
 const keyMap = { '↑': 'ArrowUp', '↓': 'ArrowDown', '←': 'ArrowLeft', '→': 'ArrowRight' };
 
@@ -107,7 +93,6 @@ buttons.forEach(button => {
 
   const press = () => {
     pressedKeys.add(key);
-    updateCharacterDirection();
     startMoving();
   };
 
@@ -128,7 +113,7 @@ buttons.forEach(button => {
   button.addEventListener('touchend', release);
 });
 
-// 🧲 마우스 드래그
+// 🖱 마우스 드래그
 function getRelativePosition(clientX, clientY) {
   const areaRect = gameArea.getBoundingClientRect();
   let x = clientX - areaRect.left - offsetX;

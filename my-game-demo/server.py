@@ -32,6 +32,14 @@ def handle_move(data):
         position['y'] += 10
     emit('position', position, broadcast=True)
 
+@socketio.on('drag')
+def handle_drag(data):
+    global position
+    position['x'] = data['x']
+    position['y'] = data['y']
+    emit('position', position, broadcast=True)
+
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))

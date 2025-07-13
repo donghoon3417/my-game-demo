@@ -24,8 +24,6 @@ body {
   top: 0;
   left: 0;
 
-  /* 🧹 반전 제거 */
-  transform: translate(100px, 100px);
 
   /* 렌더링 최적화 */
   will-change: transform;

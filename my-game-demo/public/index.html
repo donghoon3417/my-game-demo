@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>캐릭터 이동 데모</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-area">
+    <div id="character"></div>
+  </div>
+  <div id="buttons">
+    <button onclick="move('up')">↑</button>
+    <button onclick="move('left')">←</button>
+    <button onclick="move('down')">↓</button>
+    <button onclick="move('right')">→</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

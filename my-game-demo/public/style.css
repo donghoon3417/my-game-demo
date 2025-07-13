@@ -3,6 +3,8 @@ body {
   background: #222;
   color: white;
   font-family: sans-serif;
+  user-select: none;
+  overflow: hidden;
 }
 
 #game-area {
@@ -12,6 +14,7 @@ body {
   margin: 20px auto;
   background: #444;
   border: 2px solid #fff;
+  overflow: hidden;
 }
 
 #character {
@@ -21,9 +24,15 @@ body {
   top: 100px;
   left: 100px;
 
-  transform: scaleX(-1);
-  transition: transform 0.2s ease;
+  /* 🚫 방향 반전 애니메이션 제거 (깜빡임 방지) */
+  transition: none;
 
+  /* ✅ 렌더링 최적화 */
+  will-change: transform, left, top;
+  backface-visibility: hidden;
+  transform: scaleX(-1) translateZ(0);  /* 잔상 줄이기 */
+
+  /* ✅ 애니메이션 이미지 */
   background-image: url("/images/anim1.gif");
   background-size: cover;
   background-repeat: no-repeat;
@@ -32,9 +41,25 @@ body {
   z-index: 10;
 }
 
+#buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
 
 #buttons button {
-  margin: 10px;
   font-size: 20px;
-  padding: 10px;
+  padding: 10px 15px;
+  border: none;
+  background: #666;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#buttons button:active {
+  background: #888;
 }

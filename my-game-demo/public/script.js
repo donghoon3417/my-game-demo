@@ -2,59 +2,85 @@ const socket = io();
 const character = document.getElementById('character');
 const gameArea = document.getElementById('game-area');
 
- window.move = function(direction) {
-socket.emit('move', { direction });
- }
-
-// 서버로부터 위치 받기
-socket.on('position', (pos) => {
-  character.style.left = `${pos.x}px`;
-  character.style.top = `${pos.y}px`;
-});
-
-// 방향키 이동
-document.addEventListener('keydown', (e) => {
-  if (e.repeat) return;
-
-  switch (e.key) {
-    case 'ArrowLeft':
-      character.style.transform = 'scaleX(-1)'; // 왼쪽 바라보기
-      move('left');
-      break;
-    case 'ArrowRight':
-      character.style.transform = 'scaleX(1)'; // 오른쪽 바라보기
-      move('right');
-      break;
-    case 'ArrowUp':
-      move('up');
-      break;
-    case 'ArrowDown':
-      move('down');
-      break;
-  }
-});
-
-// keyup에서는 방향을 리셋하지 않음 —> 마지막 모션 유지됨
-
-
 let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
 
-// 좌표 계산 함수
+// -----------------------------
+// 🧭 방향키 지속 이동 + 대각선
+// -----------------------------
+const pressedKeys = new Set();
+let moveInterval = null;
+const speed = 5;
+
+// 방향키 누름
+document.addEventListener('keydown', (e) => {
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+    pressedKeys.add(e.key);
+    updateCharacterDirection();
+    startMoving();
+  }
+});
+
+// 방향키 뗌
+document.addEventListener('keyup', (e) => {
+  pressedKeys.delete(e.key);
+  if (pressedKeys.size === 0) {
+    stopMoving();
+  }
+});
+
+// 방향 반영 (좌/우만)
+function updateCharacterDirection() {
+  if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) {
+    character.style.transform = 'scaleX(-1)';
+  } else if (pressedKeys.has('ArrowRight') && !pressedKeys.has('ArrowLeft')) {
+    character.style.transform = 'scaleX(1)';
+  }
+}
+
+// 이동 시작
+function startMoving() {
+  if (moveInterval) return;
+  moveInterval = setInterval(() => {
+    let x = parseInt(character.style.left) || 0;
+    let y = parseInt(character.style.top) || 0;
+
+    if (pressedKeys.has('ArrowLeft')) x -= speed;
+    if (pressedKeys.has('ArrowRight')) x += speed;
+    if (pressedKeys.has('ArrowUp')) y -= speed;
+    if (pressedKeys.has('ArrowDown')) y += speed;
+
+    // 경계 제한
+    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
+    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+
+    character.style.left = `${x}px`;
+    character.style.top = `${y}px`;
+    socket.emit('drag', { x, y });
+  }, 16); // 60fps
+}
+
+// 이동 멈춤
+function stopMoving() {
+  clearInterval(moveInterval);
+  moveInterval = null;
+}
+
+// -----------------------------
+// 🧲 마우스 드래그
+// -----------------------------
 function getRelativePosition(clientX, clientY) {
   const areaRect = gameArea.getBoundingClientRect();
   let x = clientX - areaRect.left - offsetX;
   let y = clientY - areaRect.top - offsetY;
 
-  // 영역 밖으로 나가지 않게 제한
   x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
   y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
 
   return { x, y };
 }
 
-// 마우스 시작
 character.addEventListener('mousedown', (e) => {
   isDragging = true;
   const rect = character.getBoundingClientRect();
@@ -63,7 +89,6 @@ character.addEventListener('mousedown', (e) => {
   e.preventDefault();
 });
 
-// 마우스 이동
 document.addEventListener('mousemove', (e) => {
   if (isDragging) {
     const { x, y } = getRelativePosition(e.clientX, e.clientY);
@@ -73,12 +98,13 @@ document.addEventListener('mousemove', (e) => {
   }
 });
 
-// 마우스 끝
 document.addEventListener('mouseup', () => {
   isDragging = false;
 });
 
-// 터치 시작
+// -----------------------------
+// 📱 터치 드래그
+// -----------------------------
 character.addEventListener('touchstart', (e) => {
   isDragging = true;
   const touch = e.touches[0];
@@ -88,7 +114,6 @@ character.addEventListener('touchstart', (e) => {
   e.preventDefault();
 }, { passive: false });
 
-// 터치 이동
 document.addEventListener('touchmove', (e) => {
   if (isDragging) {
     const touch = e.touches[0];
@@ -99,7 +124,14 @@ document.addEventListener('touchmove', (e) => {
   }
 }, { passive: false });
 
-// 터치 끝
 document.addEventListener('touchend', () => {
   isDragging = false;
+});
+
+// -----------------------------
+// 🔄 서버 위치 동기화
+// -----------------------------
+socket.on('position', (pos) => {
+  character.style.left = `${pos.x}px`;
+  character.style.top = `${pos.y}px`;
 });

@@ -49,9 +49,9 @@ function normalizeKey(key) {
 // 방향 반전 (좌우 정확히 반대로 수정됨)
 function updateCharacterDirection() {
   if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) {
-    character.style.transform = 'scaleX(1)'; // ← 왼쪽
+    character.style.transform = 'scaleX(-1)'; // ← 왼쪽
   } else if (pressedKeys.has('ArrowRight') && !pressedKeys.has('ArrowLeft')) {
-    character.style.transform = 'scaleX(-1)'; // → 오른쪽
+    character.style.transform = 'scaleX(1)'; // → 오른쪽
   }
 }
 

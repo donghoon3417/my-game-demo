@@ -21,7 +21,7 @@ body {
   top: 100px;
   left: 100px;
 
-  transform: scaleX(1);
+  transform: scaleX(-1);
   transition: transform 0.2s ease;
 
   background-image: url("/images/anim1.gif");
@@ -29,7 +29,6 @@ body {
   background-repeat: no-repeat;
   background-position: center;
 
-  background-color: red; /* 확인용 */
   z-index: 10;
 }
 

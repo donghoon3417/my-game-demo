@@ -64,10 +64,10 @@ function moveLoop() {
   let dx = 0;
   let dy = 0;
 
-  if (pressedKeys.has('ArrowLeft')) dx -= 1;
-  if (pressedKeys.has('ArrowRight')) dx += 1;
-  if (pressedKeys.has('ArrowUp')) dy -= 1;
-  if (pressedKeys.has('ArrowDown')) dy += 1;
+  if (pressedKeys.has('ArrowLeft')) dx -= 0.1;
+  if (pressedKeys.has('ArrowRight')) dx += 0.1;
+  if (pressedKeys.has('ArrowUp')) dy -= 0.1;
+  if (pressedKeys.has('ArrowDown')) dy += 0.1;
 
   if (dx !== 0 || dy !== 0) {
     const length = Math.sqrt(dx * dx + dy * dy);

@@ -120,6 +120,7 @@ buttons.forEach(button => {
   button.addEventListener('touchend', release);
 });
 
+/*
 // 🖱 마우스 드래그
 character.addEventListener('mousedown', (e) => {
   isDragging = true;
@@ -173,7 +174,7 @@ document.addEventListener('touchmove', (e) => {
 document.addEventListener('touchend', () => {
   isDragging = false;
 });
-
+*/
 // 🔄 서버 위치 동기화
 socket.on('position', (pos) => {
   if (!isDragging) {

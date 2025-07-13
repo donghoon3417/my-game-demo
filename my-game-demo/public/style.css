@@ -21,14 +21,10 @@ body {
 
 /* 캐릭터 */
 #character {
-  width: 40px;
-  height: 40px;
   position: absolute;
   top: 0;
   left: 0;
-
-  /* ✅ 반전 제거: scaleX 완전히 삭제 */
-  transform: translate(100px, 100px);
+  transform: translate(100px, 100px); /* 처음 위치 */
 
   /* 렌더링 최적화 */
   will-change: transform;

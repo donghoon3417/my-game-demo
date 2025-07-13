@@ -14,19 +14,32 @@ let moveAnimationFrame = null;
 // 📌 방향키 이동 처리
 // -----------------------------
 document.addEventListener('keydown', (e) => {
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-    pressedKeys.add(e.key);
+  const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Left', 'Right', 'Up', 'Down'];
+  if (validKeys.includes(e.key)) {
+    const normalizedKey = normalizeKey(e.key);
+    pressedKeys.add(normalizedKey);
     updateCharacterDirection();
     startMoving();
   }
 });
 
 document.addEventListener('keyup', (e) => {
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-    pressedKeys.delete(e.key);
-    if (pressedKeys.size === 0) stopMoving();
-  }
+  const normalizedKey = normalizeKey(e.key);
+  pressedKeys.delete(normalizedKey);
+  if (pressedKeys.size === 0) stopMoving();
 });
+
+// 방향키 이름을 표준화 (예: 'Up' → 'ArrowUp')
+function normalizeKey(key) {
+  const map = {
+    'Up': 'ArrowUp',
+    'Down': 'ArrowDown',
+    'Left': 'ArrowLeft',
+    'Right': 'ArrowRight'
+  };
+  return map[key] || key;
+}
+
 
 function updateCharacterDirection() {
   if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) {

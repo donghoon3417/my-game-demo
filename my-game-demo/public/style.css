@@ -23,14 +23,10 @@ body {
   height: 40px;
   left: 100px; /* 초기 위치 설정 */
   top: 100px;
-
-  background-image: url("/images/anim1.gif"); /* 또는 배경색 */
+  background-image: url("images/anim1.gif"); /* 경로 수정 */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-}
-
-
 }
 
 #buttons {

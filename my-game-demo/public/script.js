@@ -114,28 +114,21 @@ buttons.forEach(button => {
 });
 
 // 🖱 마우스 드래그
-function getRelativePosition(clientX, clientY) {
-  const areaRect = gameArea.getBoundingClientRect();
-  let x = clientX - areaRect.left - offsetX;
-  let y = clientY - areaRect.top - offsetY;
-
-  x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
-  y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
-
-  return { x, y };
-}
-
 character.addEventListener('mousedown', (e) => {
   isDragging = true;
-  const rect = character.getBoundingClientRect();
-  offsetX = e.clientX - rect.left;
-  offsetY = e.clientY - rect.top;
+  offsetX = e.clientX - characterX;
+  offsetY = e.clientY - characterY;
   e.preventDefault();
 });
 
 document.addEventListener('mousemove', (e) => {
   if (isDragging) {
-    const { x, y } = getRelativePosition(e.clientX, e.clientY);
+    let x = e.clientX - offsetX;
+    let y = e.clientY - offsetY;
+
+    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
+    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+
     updateCharacterPosition(x, y);
   }
 });
@@ -148,16 +141,20 @@ document.addEventListener('mouseup', () => {
 character.addEventListener('touchstart', (e) => {
   isDragging = true;
   const touch = e.touches[0];
-  const rect = character.getBoundingClientRect();
-  offsetX = touch.clientX - rect.left;
-  offsetY = touch.clientY - rect.top;
+  offsetX = touch.clientX - characterX;
+  offsetY = touch.clientY - characterY;
   e.preventDefault();
 }, { passive: false });
 
 document.addEventListener('touchmove', (e) => {
   if (isDragging) {
     const touch = e.touches[0];
-    const { x, y } = getRelativePosition(touch.clientX, touch.clientY);
+    let x = touch.clientX - offsetX;
+    let y = touch.clientY - offsetY;
+
+    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
+    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+
     updateCharacterPosition(x, y);
   }
 }, { passive: false });

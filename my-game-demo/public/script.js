@@ -5,8 +5,8 @@ const gameArea = document.getElementById('game-area');
 // -----------------------------
 // 📌 내부 좌표 상태 (잔상 방지)
 // -----------------------------
-let characterX = 100;
-let characterY = 100;
+let characterX = 10;
+let characterY = 10;
 
 let isDragging = false;
 let offsetX = 0;

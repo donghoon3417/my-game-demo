@@ -1,3 +1,4 @@
+/* 기본 스타일 */
 body {
   text-align: center;
   background: #222;
@@ -7,6 +8,7 @@ body {
   overflow: hidden;
 }
 
+/* 게임 영역 */
 #game-area {
   position: relative;
   width: 400px;
@@ -17,6 +19,7 @@ body {
   overflow: hidden;
 }
 
+/* 캐릭터 */
 #character {
   width: 40px;
   height: 40px;
@@ -24,11 +27,14 @@ body {
   top: 0;
   left: 0;
 
+  /* ✅ 반전 제거: scaleX 완전히 삭제 */
+  transform: translate(100px, 100px);
 
   /* 렌더링 최적화 */
   will-change: transform;
   backface-visibility: hidden;
 
+  /* 배경 이미지 (움직이는 캐릭터 gif) */
   background-image: url("/images/anim1.gif");
   background-size: cover;
   background-repeat: no-repeat;
@@ -37,6 +43,7 @@ body {
   z-index: 10;
 }
 
+/* 버튼 컨테이너 */
 #buttons {
   display: flex;
   justify-content: center;
@@ -45,6 +52,7 @@ body {
   margin-top: 20px;
 }
 
+/* 이동 버튼 스타일 */
 #buttons button {
   font-size: 20px;
   padding: 10px 15px;

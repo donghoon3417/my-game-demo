@@ -21,15 +21,18 @@ body {
   top: 100px;
   left: 100px;
 
-  /* 기존 스타일 외에 */
-  transform: scaleX(-1); /* 초기 방향 왼쪽 */
+  transform: scaleX(-1);
   transition: transform 0.2s ease;
 
-  background-image: url("public/images/anim1.gif");
+  background-image: url("/images/anim1.gif");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+
+  background-color: red; /* 확인용 */
+  z-index: 10;
 }
+
 
 #buttons button {
   margin: 10px;

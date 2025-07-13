@@ -32,6 +32,14 @@ function normalizeKey(key) {
   return map[key] || key;
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const rect = character.getBoundingClientRect();
+  const parentRect = gameArea.getBoundingClientRect();
+  characterX = rect.left - parentRect.left;
+  characterY = rect.top - parentRect.top;
+});
+
+
 document.addEventListener('keydown', (e) => {
   const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Left', 'Right', 'Up', 'Down'];
   if (validKeys.includes(e.key)) {

@@ -20,7 +20,7 @@ body {
   position: absolute;
   top: 100px;
   left: 100px;
-  #character {
+
   /* 기존 스타일 외에 */
   transform: scaleX(-1); /* 초기 방향 왼쪽 */
   transition: transform 0.2s ease;

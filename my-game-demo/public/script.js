@@ -14,17 +14,28 @@ socket.on('position', (pos) => {
 
 // 방향키 이동
 document.addEventListener('keydown', (e) => {
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-    let direction;
-    switch (e.key) {
-      case 'ArrowLeft': direction = 'left'; break;
-      case 'ArrowRight': direction = 'right'; break;
-      case 'ArrowUp': direction = 'up'; break;
-      case 'ArrowDown': direction = 'down'; break;
-    }
-        move(direction);
+  if (e.repeat) return;
+
+  switch (e.key) {
+    case 'ArrowLeft':
+      character.style.transform = 'scaleX(-1)'; // 왼쪽 바라보기
+      move('left');
+      break;
+    case 'ArrowRight':
+      character.style.transform = 'scaleX(1)'; // 오른쪽 바라보기
+      move('right');
+      break;
+    case 'ArrowUp':
+      move('up');
+      break;
+    case 'ArrowDown':
+      move('down');
+      break;
   }
 });
+
+// keyup에서는 방향을 리셋하지 않음 —> 마지막 모션 유지됨
+
 
 let isDragging = false;
 let offsetX = 0;

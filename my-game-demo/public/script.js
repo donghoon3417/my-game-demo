@@ -13,7 +13,6 @@ const pressedKeys = new Set();
 let moveInterval = null;
 const speed = 5;
 
-// 방향키 누름
 document.addEventListener('keydown', (e) => {
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
     pressedKeys.add(e.key);
@@ -22,15 +21,14 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// 방향키 뗌
 document.addEventListener('keyup', (e) => {
-  pressedKeys.delete(e.key);
-  if (pressedKeys.size === 0) {
-    stopMoving();
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+    pressedKeys.delete(e.key);
+    if (pressedKeys.size === 0) stopMoving();
   }
 });
 
-// 방향 반영 (좌/우만)
+// 방향 전환: 좌/우 키만 고려
 function updateCharacterDirection() {
   if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) {
     character.style.transform = 'scaleX(-1)';
@@ -39,29 +37,30 @@ function updateCharacterDirection() {
   }
 }
 
-// 이동 시작
+// 이동 루프 시작
 function startMoving() {
   if (moveInterval) return;
   moveInterval = setInterval(() => {
     let x = parseInt(character.style.left) || 0;
     let y = parseInt(character.style.top) || 0;
 
-    if (pressedKeys.has('ArrowLeft')) x -= speed;
+    if (pressedKeys.has('ArrowLeft'))  x -= speed;
     if (pressedKeys.has('ArrowRight')) x += speed;
-    if (pressedKeys.has('ArrowUp')) y -= speed;
-    if (pressedKeys.has('ArrowDown')) y += speed;
+    if (pressedKeys.has('ArrowUp'))    y -= speed;
+    if (pressedKeys.has('ArrowDown'))  y += speed;
 
-    // 경계 제한
+    // 게임 영역 제한
     x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
     y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
 
     character.style.left = `${x}px`;
     character.style.top = `${y}px`;
+
+    // 서버로 위치 전송
     socket.emit('drag', { x, y });
-  }, 16); // 60fps
+  }, 16); // 약 60fps
 }
 
-// 이동 멈춤
 function stopMoving() {
   clearInterval(moveInterval);
   moveInterval = null;

@@ -1,14 +1,13 @@
-/* 기본 스타일 */
 body {
-  text-align: center;
   background: #222;
   color: white;
   font-family: sans-serif;
-  user-select: none;
+  text-align: center;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
 }
 
-/* 게임 영역 */
 #game-area {
   position: relative;
   width: 400px;
@@ -16,50 +15,22 @@ body {
   margin: 20px auto;
   background: #444;
   border: 2px solid #fff;
-  overflow: hidden;
 }
 
-/* 캐릭터 */
 #character {
   position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(100px, 100px);
-
-  background-image: url("/images/anim1.gif");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-
   width: 40px;
   height: 40px;
-  z-index: 10;
-  will-change: transform;
-  backface-visibility: hidden;
+  transform: translate(100px, 100px);
+  background: yellow; /* 🔧 이미지 대신 색상으로 표시 */
 }
 
-
-/* 버튼 컨테이너 */
 #buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
   margin-top: 20px;
 }
 
-/* 이동 버튼 스타일 */
 #buttons button {
   font-size: 20px;
-  padding: 10px 15px;
-  border: none;
-  background: #666;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-#buttons button:active {
-  background: #888;
+  padding: 10px;
+  margin: 5px;
 }

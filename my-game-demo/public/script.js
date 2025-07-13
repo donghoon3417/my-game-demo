@@ -51,6 +51,11 @@ function startMoving() {
 }
 
 function moveLoop() {
+  if (isDragging) {
+    moveAnimationFrame = requestAnimationFrame(moveLoop);
+    return; // 드래그 중이면 키보드 이동 중단
+  }
+
   let dx = 0;
   let dy = 0;
 
@@ -165,5 +170,7 @@ document.addEventListener('touchend', () => {
 
 // 🔄 서버 위치 동기화
 socket.on('position', (pos) => {
-  updateCharacterPosition(pos.x, pos.y);
+  if (!isDragging) {
+    updateCharacterPosition(pos.x, pos.y);
+  }
 });

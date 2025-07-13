@@ -18,10 +18,19 @@ body {
 }
 
 #character {
+#character {
   position: absolute;
   width: 40px;
   height: 40px;
-  transform: translate(100px, 100px);
+  left: 100px; /* 초기 위치 설정 */
+  top: 100px;
+
+  background-image: url("/images/anim1.gif"); /* 또는 배경색 */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 
 }
 

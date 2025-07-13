@@ -2,6 +2,12 @@ const socket = io();
 const character = document.getElementById('character');
 const gameArea = document.getElementById('game-area');
 
+// -----------------------------
+// 📌 내부 좌표 상태 (잔상 방지)
+// -----------------------------
+let characterX = 100;
+let characterY = 100;
+
 let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
@@ -29,7 +35,7 @@ document.addEventListener('keyup', (e) => {
   if (pressedKeys.size === 0) stopMoving();
 });
 
-// 방향키 이름을 표준화 (예: 'Up' → 'ArrowUp')
+// 방향키 이름 표준화
 function normalizeKey(key) {
   const map = {
     'Up': 'ArrowUp',
@@ -40,22 +46,13 @@ function normalizeKey(key) {
   return map[key] || key;
 }
 
-
+// 방향 반전 (좌우 정확히 반대로 수정됨)
 function updateCharacterDirection() {
   if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) {
-    character.style.transform = 'scaleX(-1)';
+    character.style.transform = 'scaleX(1)'; // ← 왼쪽
   } else if (pressedKeys.has('ArrowRight') && !pressedKeys.has('ArrowLeft')) {
-    character.style.transform = 'scaleX(1)';
+    character.style.transform = 'scaleX(-1)'; // → 오른쪽
   }
-}
-
-function getCurrentPosition() {
-  const rect = character.getBoundingClientRect();
-  const areaRect = gameArea.getBoundingClientRect();
-  return {
-    x: rect.left - areaRect.left,
-    y: rect.top - areaRect.top,
-  };
 }
 
 function startMoving() {
@@ -64,10 +61,6 @@ function startMoving() {
 }
 
 function moveLoop() {
-  const pos = getCurrentPosition();
-  let x = pos.x;
-  let y = pos.y;
-
   let dx = 0;
   let dy = 0;
 
@@ -81,15 +74,17 @@ function moveLoop() {
     dx = (dx / length) * speed;
     dy = (dy / length) * speed;
 
-    x += dx;
-    y += dy;
+    characterX += dx;
+    characterY += dy;
 
-    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
-    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+    // 경계 제한
+    characterX = Math.max(0, Math.min(characterX, gameArea.clientWidth - character.clientWidth));
+    characterY = Math.max(0, Math.min(characterY, gameArea.clientHeight - character.clientHeight));
 
-    character.style.left = `${x}px`;
-    character.style.top = `${y}px`;
-    socket.emit('drag', { x, y });
+    character.style.left = `${characterX}px`;
+    character.style.top = `${characterY}px`;
+
+    socket.emit('drag', { x: characterX, y: characterY });
   }
 
   moveAnimationFrame = requestAnimationFrame(moveLoop);
@@ -103,7 +98,7 @@ function stopMoving() {
 }
 
 // -----------------------------
-// 📱 모바일 & PC 버튼 제어
+// 📱 버튼 (모바일 & PC 클릭 지원)
 // -----------------------------
 const buttons = document.querySelectorAll('#buttons button');
 
@@ -167,6 +162,8 @@ character.addEventListener('mousedown', (e) => {
 document.addEventListener('mousemove', (e) => {
   if (isDragging) {
     const { x, y } = getRelativePosition(e.clientX, e.clientY);
+    characterX = x;
+    characterY = y;
     character.style.left = `${x}px`;
     character.style.top = `${y}px`;
     socket.emit('drag', { x, y });
@@ -193,6 +190,8 @@ document.addEventListener('touchmove', (e) => {
   if (isDragging) {
     const touch = e.touches[0];
     const { x, y } = getRelativePosition(touch.clientX, touch.clientY);
+    characterX = x;
+    characterY = y;
     character.style.left = `${x}px`;
     character.style.top = `${y}px`;
     socket.emit('drag', { x, y });
@@ -207,6 +206,8 @@ document.addEventListener('touchend', () => {
 // 🔄 서버 위치 동기화
 // -----------------------------
 socket.on('position', (pos) => {
-  character.style.left = `${pos.x}px`;
-  character.style.top = `${pos.y}px`;
+  characterX = pos.x;
+  characterY = pos.y;
+  character.style.left = `${characterX}px`;
+  character.style.top = `${characterY}px`;
 });

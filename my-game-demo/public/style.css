@@ -20,7 +20,10 @@ body {
   position: absolute;
   top: 100px;
   left: 100px;
-  transition: 0.1s;
+  #character {
+  /* 기존 스타일 외에 */
+  transform: scaleX(-1); /* 초기 방향 왼쪽 */
+  transition: transform 0.2s ease;
 
   background-image: url("public/images/anim1.gif");
   background-size: cover;

@@ -24,20 +24,20 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  transform: translate(100px, 100px); /* 처음 위치 */
+  transform: translate(100px, 100px);
 
-  /* 렌더링 최적화 */
-  will-change: transform;
-  backface-visibility: hidden;
-
-  /* 배경 이미지 (움직이는 캐릭터 gif) */
   background-image: url("/images/anim1.gif");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
 
+  width: 40px;
+  height: 40px;
   z-index: 10;
+  will-change: transform;
+  backface-visibility: hidden;
 }
+
 
 /* 버튼 컨테이너 */
 #buttons {

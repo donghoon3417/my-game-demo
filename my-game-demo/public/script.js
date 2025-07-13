@@ -5,14 +5,14 @@ const gameArea = document.getElementById('game-area');
 // -----------------------------
 // 📌 내부 좌표 상태 (잔상 방지)
 // -----------------------------
-let characterX = 10;
-let characterY = 10;
+let characterX = 100;
+let characterY = 100;
 
 let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
 
-const speed = 1;
+const speed = 10;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
@@ -64,10 +64,10 @@ function moveLoop() {
   let dx = 0;
   let dy = 0;
 
-  if (pressedKeys.has('ArrowLeft')) dx -= 0.1;
-  if (pressedKeys.has('ArrowRight')) dx += 0.1;
-  if (pressedKeys.has('ArrowUp')) dy -= 0.1;
-  if (pressedKeys.has('ArrowDown')) dy += 0.1;
+  if (pressedKeys.has('ArrowLeft')) dx -= 10;
+  if (pressedKeys.has('ArrowRight')) dx += 10;
+  if (pressedKeys.has('ArrowUp')) dy -= 10;
+  if (pressedKeys.has('ArrowDown')) dy += 10;
 
   if (dx !== 0 || dy !== 0) {
     const length = Math.sqrt(dx * dx + dy * dy);

@@ -18,6 +18,7 @@ document.addEventListener('keydown', (e) => {
       case 'ArrowUp': direction = 'up'; break;
       case 'ArrowDown': direction = 'down'; break;
     }
+    window.move = function(direction) {
     socket.emit('move', { direction });
   }
 });

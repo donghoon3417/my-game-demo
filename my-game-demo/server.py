@@ -1,3 +1,7 @@
+import os
+import eventlet
+import eventlet.wsgi
+
 from flask import Flask, send_from_directory
 from flask_socketio import SocketIO, emit
 
@@ -31,4 +35,4 @@ def handle_move(data):
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=port)

@@ -8,6 +8,10 @@ socket.on('position', (pos) => {
   character.style.top = `${pos.y}px`;
 });
 
+ window.move = function(direction) {
+socket.emit('move', { direction });
+ }
+
 // 방향키 이동
 document.addEventListener('keydown', (e) => {
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
@@ -18,9 +22,7 @@ document.addEventListener('keydown', (e) => {
       case 'ArrowUp': direction = 'up'; break;
       case 'ArrowDown': direction = 'down'; break;
     }
-    window.move = function(direction) {
-    socket.emit('move', { direction });
-  }
+
 });
 
 let isDragging = false;

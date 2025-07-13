@@ -2,15 +2,15 @@ const socket = io();
 const character = document.getElementById('character');
 const gameArea = document.getElementById('game-area');
 
+ window.move = function(direction) {
+socket.emit('move', { direction });
+ }
+
 // 서버로부터 위치 받기
 socket.on('position', (pos) => {
   character.style.left = `${pos.x}px`;
   character.style.top = `${pos.y}px`;
 });
-
- window.move = function(direction) {
-socket.emit('move', { direction });
- }
 
 // 방향키 이동
 document.addEventListener('keydown', (e) => {

@@ -9,3 +9,24 @@ socket.on('position', (pos) => {
 function move(direction) {
   socket.emit('move', { direction });
 }
+
+document.addEventListener('keydown', (e) => {
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+    let direction;
+    switch (e.key) {
+      case 'ArrowLeft':
+        direction = 'left';
+        break;
+      case 'ArrowRight':
+        direction = 'right';
+        break;
+      case 'ArrowUp':
+        direction = 'up';
+        break;
+      case 'ArrowDown':
+        direction = 'down';
+        break;
+    }
+    move(direction);
+  }
+});

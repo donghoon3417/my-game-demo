@@ -21,7 +21,7 @@ body {
   top: 100px;
   left: 100px;
 
-  transform: scaleX(-1);
+  transform: scaleX(1);
   transition: transform 0.2s ease;
 
   background-image: url("/images/anim1.gif");

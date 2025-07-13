@@ -18,11 +18,11 @@ document.addEventListener('keydown', (e) => {
 
   switch (e.key) {
     case 'ArrowLeft':
-      character.style.transform = 'scaleX(-1)'; // 왼쪽 바라보기
+      character.style.transform = 'scaleX(1)'; // 왼쪽 바라보기
       move('left');
       break;
     case 'ArrowRight':
-      character.style.transform = 'scaleX(1)'; // 오른쪽 바라보기
+      character.style.transform = 'scaleX(-1)'; // 오른쪽 바라보기
       move('right');
       break;
     case 'ArrowUp':

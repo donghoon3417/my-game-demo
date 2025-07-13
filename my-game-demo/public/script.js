@@ -16,9 +16,11 @@ let moveAnimationFrame = null;
 function updateCharacterPosition(x, y) {
   characterX = x;
   characterY = y;
-  character.style.transform = `translate(${x}px, ${y}px)`;
+  character.style.left = `${x}px`;
+  character.style.top = `${y}px`;
   socket.emit('drag', { x, y });
 }
+
 
 function normalizeKey(key) {
   const map = {

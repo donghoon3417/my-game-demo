@@ -12,7 +12,7 @@ let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
 
-const speed = 5;
+const speed = 1;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 

@@ -21,18 +21,14 @@ body {
   width: 40px;
   height: 40px;
   position: absolute;
-  top: 100px;
-  left: 100px;
+  top: 0;
+  left: 0;
 
-  /* 🚫 방향 반전 애니메이션 제거 (깜빡임 방지) */
-  transition: none;
-
-  /* ✅ 렌더링 최적화 */
-  will-change: transform, left, top;
+  /* 렌더링 최적화 */
+  will-change: transform;
   backface-visibility: hidden;
-  transform: scaleX(-1) translateZ(0);  /* 잔상 줄이기 */
+  transform: translate(100px, 100px) scaleX(-1);
 
-  /* ✅ 애니메이션 이미지 */
   background-image: url("/images/anim1.gif");
   background-size: cover;
   background-repeat: no-repeat;

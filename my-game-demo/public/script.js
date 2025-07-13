@@ -2,9 +2,6 @@ const socket = io();
 const character = document.getElementById('character');
 const gameArea = document.getElementById('game-area');
 
-// -----------------------------
-// 📌 내부 좌표 상태 (잔상 방지)
-// -----------------------------
 let characterX = 100;
 let characterY = 100;
 
@@ -16,26 +13,20 @@ const speed = 10;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
-// -----------------------------
-// 📌 방향키 이동 처리
-// -----------------------------
-document.addEventListener('keydown', (e) => {
-  const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Left', 'Right', 'Up', 'Down'];
-  if (validKeys.includes(e.key)) {
-    const normalizedKey = normalizeKey(e.key);
-    pressedKeys.add(normalizedKey);
-    updateCharacterDirection();
-    startMoving();
-  }
-});
+function updateCharacterPosition(x, y) {
+  characterX = x;
+  characterY = y;
+  const scaleX = getDirectionScaleX();
+  character.style.transform = `translate(${x}px, ${y}px) scaleX(${scaleX})`;
+  socket.emit('drag', { x, y });
+}
 
-document.addEventListener('keyup', (e) => {
-  const normalizedKey = normalizeKey(e.key);
-  pressedKeys.delete(normalizedKey);
-  if (pressedKeys.size === 0) stopMoving();
-});
+function getDirectionScaleX() {
+  if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) return 1;
+  if (pressedKeys.has('ArrowRight') && !pressedKeys.has('ArrowLeft')) return -1;
+  return 1;
+}
 
-// 방향키 이름 표준화
 function normalizeKey(key) {
   const map = {
     'Up': 'ArrowUp',
@@ -46,13 +37,26 @@ function normalizeKey(key) {
   return map[key] || key;
 }
 
-// 방향 반전 (좌우 정확히 반대로 수정됨)
-function updateCharacterDirection() {
-  if (pressedKeys.has('ArrowLeft') && !pressedKeys.has('ArrowRight')) {
-    character.style.transform = 'scaleX(1)'; // ← 왼쪽
-  } else if (pressedKeys.has('ArrowRight') && !pressedKeys.has('ArrowLeft')) {
-    character.style.transform = 'scaleX(-1)'; // → 오른쪽
+document.addEventListener('keydown', (e) => {
+  const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Left', 'Right', 'Up', 'Down'];
+  if (validKeys.includes(e.key)) {
+    const key = normalizeKey(e.key);
+    pressedKeys.add(key);
+    updateCharacterDirection();
+    startMoving();
   }
+});
+
+document.addEventListener('keyup', (e) => {
+  const key = normalizeKey(e.key);
+  pressedKeys.delete(key);
+  if (pressedKeys.size === 0) stopMoving();
+});
+
+function updateCharacterDirection() {
+  const scaleX = getDirectionScaleX();
+  const [x, y] = [characterX, characterY];
+  character.style.transform = `translate(${x}px, ${y}px) scaleX(${scaleX})`;
 }
 
 function startMoving() {
@@ -64,27 +68,23 @@ function moveLoop() {
   let dx = 0;
   let dy = 0;
 
-  if (pressedKeys.has('ArrowLeft')) dx -= 10;
-  if (pressedKeys.has('ArrowRight')) dx += 10;
-  if (pressedKeys.has('ArrowUp')) dy -= 10;
-  if (pressedKeys.has('ArrowDown')) dy += 10;
+  if (pressedKeys.has('ArrowLeft')) dx -= 1;
+  if (pressedKeys.has('ArrowRight')) dx += 1;
+  if (pressedKeys.has('ArrowUp')) dy -= 1;
+  if (pressedKeys.has('ArrowDown')) dy += 1;
 
   if (dx !== 0 || dy !== 0) {
     const length = Math.sqrt(dx * dx + dy * dy);
     dx = (dx / length) * speed;
     dy = (dy / length) * speed;
 
-    characterX += dx;
-    characterY += dy;
+    let newX = characterX + dx;
+    let newY = characterY + dy;
 
-    // 경계 제한
-    characterX = Math.max(0, Math.min(characterX, gameArea.clientWidth - character.clientWidth));
-    characterY = Math.max(0, Math.min(characterY, gameArea.clientHeight - character.clientHeight));
+    newX = Math.max(0, Math.min(newX, gameArea.clientWidth - character.clientWidth));
+    newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
 
-    character.style.left = `${characterX}px`;
-    character.style.top = `${characterY}px`;
-
-    socket.emit('drag', { x: characterX, y: characterY });
+    updateCharacterPosition(newX, newY);
   }
 
   moveAnimationFrame = requestAnimationFrame(moveLoop);
@@ -97,22 +97,13 @@ function stopMoving() {
   }
 }
 
-// -----------------------------
-// 📱 버튼 (모바일 & PC 클릭 지원)
-// -----------------------------
+// 📱 모바일 버튼
 const buttons = document.querySelectorAll('#buttons button');
+const keyMap = { '↑': 'ArrowUp', '↓': 'ArrowDown', '←': 'ArrowLeft', '→': 'ArrowRight' };
 
 buttons.forEach(button => {
-  const dir = button.textContent;
-
-  const keyMap = {
-    '↑': 'ArrowUp',
-    '↓': 'ArrowDown',
-    '←': 'ArrowLeft',
-    '→': 'ArrowRight'
-  };
-
-  const key = keyMap[dir];
+  const key = keyMap[button.textContent];
+  if (!key) return;
 
   const press = () => {
     pressedKeys.add(key);
@@ -137,9 +128,7 @@ buttons.forEach(button => {
   button.addEventListener('touchend', release);
 });
 
-// -----------------------------
 // 🧲 마우스 드래그
-// -----------------------------
 function getRelativePosition(clientX, clientY) {
   const areaRect = gameArea.getBoundingClientRect();
   let x = clientX - areaRect.left - offsetX;
@@ -162,11 +151,7 @@ character.addEventListener('mousedown', (e) => {
 document.addEventListener('mousemove', (e) => {
   if (isDragging) {
     const { x, y } = getRelativePosition(e.clientX, e.clientY);
-    characterX = x;
-    characterY = y;
-    character.style.left = `${x}px`;
-    character.style.top = `${y}px`;
-    socket.emit('drag', { x, y });
+    updateCharacterPosition(x, y);
   }
 });
 
@@ -174,9 +159,7 @@ document.addEventListener('mouseup', () => {
   isDragging = false;
 });
 
-// -----------------------------
 // 📲 터치 드래그
-// -----------------------------
 character.addEventListener('touchstart', (e) => {
   isDragging = true;
   const touch = e.touches[0];
@@ -190,11 +173,7 @@ document.addEventListener('touchmove', (e) => {
   if (isDragging) {
     const touch = e.touches[0];
     const { x, y } = getRelativePosition(touch.clientX, touch.clientY);
-    characterX = x;
-    characterY = y;
-    character.style.left = `${x}px`;
-    character.style.top = `${y}px`;
-    socket.emit('drag', { x, y });
+    updateCharacterPosition(x, y);
   }
 }, { passive: false });
 
@@ -202,12 +181,7 @@ document.addEventListener('touchend', () => {
   isDragging = false;
 });
 
-// -----------------------------
 // 🔄 서버 위치 동기화
-// -----------------------------
 socket.on('position', (pos) => {
-  characterX = pos.x;
-  characterY = pos.y;
-  character.style.left = `${characterX}px`;
-  character.style.top = `${characterY}px`;
+  updateCharacterPosition(pos.x, pos.y);
 });

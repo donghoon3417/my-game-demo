@@ -38,32 +38,50 @@ function updateCharacterDirection() {
 }
 
 // 이동 루프 시작
+let moveAnimationFrame = null;
+
 function startMoving() {
-  if (moveInterval) return;
-  moveInterval = setInterval(() => {
-    let x = parseInt(character.style.left) || 0;
-    let y = parseInt(character.style.top) || 0;
+  if (moveAnimationFrame !== null) return;
+  moveLoop();
+}
 
-    if (pressedKeys.has('ArrowLeft'))  x -= speed;
-    if (pressedKeys.has('ArrowRight')) x += speed;
-    if (pressedKeys.has('ArrowUp'))    y -= speed;
-    if (pressedKeys.has('ArrowDown'))  y += speed;
+function moveLoop() {
+  let x = parseInt(character.style.left) || 0;
+  let y = parseInt(character.style.top) || 0;
 
-    // 게임 영역 제한
+  let dx = 0;
+  let dy = 0;
+
+  if (pressedKeys.has('ArrowLeft'))  dx -= 1;
+  if (pressedKeys.has('ArrowRight')) dx += 1;
+  if (pressedKeys.has('ArrowUp'))    dy -= 1;
+  if (pressedKeys.has('ArrowDown'))  dy += 1;
+
+  if (dx !== 0 || dy !== 0) {
+    const length = Math.sqrt(dx * dx + dy * dy);
+    dx = (dx / length) * speed;
+    dy = (dy / length) * speed;
+
+    x += dx;
+    y += dy;
+
+    // 경계 제한
     x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
     y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
 
     character.style.left = `${x}px`;
     character.style.top = `${y}px`;
-
-    // 서버로 위치 전송
     socket.emit('drag', { x, y });
-  }, 16); // 약 60fps
+  }
+
+  moveAnimationFrame = requestAnimationFrame(moveLoop);
 }
 
 function stopMoving() {
-  clearInterval(moveInterval);
-  moveInterval = null;
+  if (moveAnimationFrame !== null) {
+    cancelAnimationFrame(moveAnimationFrame);
+    moveAnimationFrame = null;
+  }
 }
 
 // -----------------------------

@@ -41,8 +41,13 @@ function updateCharacterPosition(x, y) {
     character.style.transform = 'scaleX(-1)';
   }
 
-  socket.emit('drag', { x, y, direction: currentDirection });
+  // 👉 비율 좌표로 전송
+  const ratioX = x / gameArea.clientWidth;
+  const ratioY = y / gameArea.clientHeight;
+
+  socket.emit('drag', { x: ratioX, y: ratioY, direction: currentDirection });
 }
+
 
 function normalizeKey(key) {
   const map = {
@@ -197,7 +202,12 @@ socket.on('position', (pos) => {
     currentDirection = pos.direction;
   }
 
-  updateCharacterFromServer(pos.x, pos.y);
+  // 👉 비율 좌표를 화면 크기로 변환
+  const x = pos.x * gameArea.clientWidth;
+  const y = pos.y * gameArea.clientHeight;
+
+  updateCharacterFromServer(x, y);
 });
+
 
 

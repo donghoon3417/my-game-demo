@@ -10,7 +10,9 @@ let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
 
-const speed = 10;
+const isMobile = window.innerWidth <= 1024;
+const speed = isMobile ? 5 : 10;
+
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 

@@ -14,15 +14,15 @@ const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
 function updateCharacterPosition(x, y) {
-  console.log(`Updating position to: ${x}, ${y}`);
   characterX = x;
   characterY = y;
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
-emit('position', position, broadcast=True, include_self=False)
 
-
+  // 서버에 위치 전송
+  socket.emit('drag', { x: characterX, y: characterY });
 }
+
 
 function normalizeKey(key) {
   const map = {

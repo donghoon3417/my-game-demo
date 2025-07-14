@@ -30,7 +30,7 @@ def handle_move(data):
         position['y'] -= 10
     elif direction == 'down':
         position['y'] += 10
-   emit('position', position, broadcast=True, include_self=True)
+      emit('position', position, broadcast=True, include_self=True)
 # 또는 include_self 생략 (기본값은 True)
 
 
@@ -39,7 +39,7 @@ def handle_drag(data):
     global position
     position['x'] = data['x']
     position['y'] = data['y']
-   emit('position', position, broadcast=True, include_self=True)
+    emit('position', position, broadcast=True, include_self=True)
 # 또는 include_self 생략 (기본값은 True)
 
 if __name__ == '__main__':

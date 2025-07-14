@@ -14,20 +14,20 @@ body {
 /* 게임 영역: 전체 가로폭 사용 + 가로 넓은 비율로 설정 */
 #game-area {
   position: relative;
-  width: 100vw;               /* ✅ 전체 화면 가로 사용 */
-  max-width: 1920px;          /* ✅ 데스크탑에서 가로 제한 */
-  aspect-ratio: 5 / 2;        /* ✅ 가로가 넓은 비율 확보 */
+  width: 100vw;
+  max-width: 1920px;
+  aspect-ratio: 5 / 2;
   background-color: #f0f0f0;
   border: 2px solid #ccc;
   overflow: hidden;
   margin: 0 auto;
 }
 
-/* 캐릭터: game-area 기준 비율 유지 */
+/* 캐릭터: 데스크탑 기준 크기 */
 #character {
   position: absolute;
-  width: 4%;                  /* ✅ 가로의 4% */
-  height: 8%;                 /* ✅ 세로의 8% */
+  width: 4%;
+  height: 8%;
   background-image: url("images/anim1.gif");
   background-size: cover;
   background-position: center;
@@ -37,7 +37,7 @@ body {
   transition: transform 0.1s linear;
 }
 
-/* 방향 버튼 영역 */
+/* 버튼 영역 */
 #buttons {
   margin-top: 2vh;
   display: flex;
@@ -61,4 +61,18 @@ body {
 
 #buttons button:active {
   background-color: #004d40;
+}
+
+/* ✅ 모바일 (가로폭 1024px 이하)에서는 캐릭터 크기를 더 작게 */
+@media (max-width: 1024px) {
+  #character {
+    width: 3%;
+    height: 6%;
+  }
+
+  #buttons button {
+    width: 14vw;
+    height: 14vw;
+    font-size: 4vw;
+  }
 }

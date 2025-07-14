@@ -37,8 +37,7 @@ def handle_drag(data):
     global position
     position['x'] = data['x']
     position['y'] = data['y']
-    emit('position', position, broadcast=True)
-
+    emit('position', position, broadcast=True, include_self=False)
 
 if __name__ == '__main__':
     import os

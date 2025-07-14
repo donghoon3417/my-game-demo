@@ -160,7 +160,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
   isDragging = false;
 });
-
+*/
 // 📲 터치 드래그
 character.addEventListener('touchstart', (e) => {
   isDragging = true;
@@ -188,7 +188,7 @@ document.addEventListener('touchmove', (e) => {
 document.addEventListener('touchend', () => {
   isDragging = false;
 });
-*/
+
 // 🔄 서버 위치 동기화
 socket.on('position', (pos) => {
   if (!isDragging) {

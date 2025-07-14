@@ -7,8 +7,8 @@ body {
 
 #game-area {
   position: relative;
-  width: 800px; /* ✅ 데스크탑에서 더 크게 */
-  height: 600px; /* ✅ 높이도 확대 */
+  width: 1900px; /* ✅ 데스크탑에서 더 크게 */
+  height: 900px; /* ✅ 높이도 확대 */
   background-color: #f0f0f0;
   margin: 20px auto;
   border: 2px solid #ccc;

@@ -165,12 +165,10 @@ document.addEventListener('mouseup', () => {
 character.addEventListener('touchstart', (e) => {
   isDragging = true;
   const touch = e.touches[0];
-  const rect = character.getBoundingClientRect();
-  offsetX = touch.clientX - rect.left;
-  offsetY = touch.clientY - rect.top;
+  offsetX = touch.clientX - character.offsetLeft;
+  offsetY = touch.clientY - character.offsetTop;
   e.preventDefault();
 }, { passive: false });
-
 
 document.addEventListener('touchmove', (e) => {
   if (isDragging) {
@@ -184,6 +182,7 @@ document.addEventListener('touchmove', (e) => {
     updateCharacterPosition(x, y);
   }
 }, { passive: false });
+
 
 document.addEventListener('touchend', () => {
   isDragging = false;

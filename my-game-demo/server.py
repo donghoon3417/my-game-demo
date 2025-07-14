@@ -5,7 +5,8 @@ from flask_socketio import SocketIO, emit
 app = Flask(__name__, static_folder='public')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-position = {'x': 100, 'y': 100, 'direction': 'left'}  # 초기 위치와 방향
+# 좌표를 0~1 비율로 관리
+position = {'x': 0.1, 'y': 0.1, 'direction': 'left'}
 
 @app.route('/')
 def index():
@@ -18,7 +19,7 @@ def serve_file(path):
 @socketio.on('drag')
 def handle_drag(data):
     global position
-    position['x'] = data['x']
+    position['x'] = data['x']  # 0~1 비율값
     position['y'] = data['y']
     position['direction'] = data.get('direction', position['direction'])
     emit('position', position, broadcast=True, include_self=False)
@@ -27,8 +28,9 @@ def handle_drag(data):
 def handle_move(data):
     global position
     direction = data.get('direction')
-    step = data.get('step', 10)  # 기본 이동 거리: 10
-    position['direction'] = direction  # 현재 방향 저장
+    step = data.get('step', 0.01)  # 0~1 기준 비율로 이동 (ex: 0.01 = 1%)
+
+    position['direction'] = direction
 
     if direction == 'left':
         position['x'] -= step
@@ -38,6 +40,10 @@ def handle_move(data):
         position['y'] -= step
     elif direction == 'down':
         position['y'] += step
+
+    # 범위 제한 (0~1)
+    position['x'] = max(0, min(position['x'], 1))
+    position['y'] = max(0, min(position['y'], 1))
 
     emit('position', position, broadcast=True, include_self=False)
 

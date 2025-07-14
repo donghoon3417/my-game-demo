@@ -39,7 +39,7 @@ function updateCharacterPosition(x, y) {
     character.style.transform = 'scaleX(-1)';
   }
 
-  socket.emit('drag', { x, y });
+  socket.emit('drag', { x, y, direction: currentDirection });
 }
 
 function normalizeKey(key) {

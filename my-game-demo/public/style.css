@@ -7,8 +7,8 @@ body {
 
 #game-area {
   position: relative;
-  width: 500px;
-  height: 400px;
+  width: 800px; /* ✅ 데스크탑에서 더 크게 */
+  height: 600px; /* ✅ 높이도 확대 */
   background-color: #f0f0f0;
   margin: 20px auto;
   border: 2px solid #ccc;
@@ -17,8 +17,8 @@ body {
 
 #character {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 80px; /* ✅ 캐릭터 크기 확대 */
+  height: 80px;
   background-image: url("images/anim1.gif");
   background-size: cover;
   background-repeat: no-repeat;
@@ -72,4 +72,3 @@ body {
     font-size: 20px;
   }
 }
-

@@ -76,11 +76,6 @@ function moveLoop() {
   if (pressedKeys.has('ArrowUp')) dy -= 1;
   if (pressedKeys.has('ArrowDown')) dy += 1;
 
-  console.log("Pressed keys:", [...pressedKeys]);
- console.log("Delta:", dx, dy);
- console.log("Current pos:", characterX, characterY);
-
-
   if (dx !== 0 || dy !== 0) {
     const length = Math.sqrt(dx * dx + dy * dy);
     dx = (dx / length) * speed;
@@ -95,9 +90,12 @@ function moveLoop() {
     updateCharacterPosition(newX, newY);
   }
 
+    // ✅ 서버에 실시간 위치 전송
+    socket.emit('drag', { x: newX, y: newY });
+  }
+
   moveAnimationFrame = requestAnimationFrame(moveLoop);
 }
-
 function stopMoving() {
   if (moveAnimationFrame !== null) {
     cancelAnimationFrame(moveAnimationFrame);

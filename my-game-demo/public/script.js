@@ -21,9 +21,9 @@ function updateCharacterFromServer(x, y) {
   character.style.top = `${y}px`;
   
   if (currentDirection === 'left') {
-    character.style.transform = 'scaleX(-1)';
-  } else if (currentDirection === 'right') {
     character.style.transform = 'scaleX(1)';
+  } else if (currentDirection === 'right') {
+    character.style.transform = 'scaleX(-1)';
   }
 }
 
@@ -34,9 +34,9 @@ function updateCharacterPosition(x, y) {
   character.style.top = `${y}px`;
 
   if (currentDirection === 'left') {
-    character.style.transform = 'scaleX(-1)';
-  } else if (currentDirection === 'right') {
     character.style.transform = 'scaleX(1)';
+  } else if (currentDirection === 'right') {
+    character.style.transform = 'scaleX(-1)';
   }
 
   socket.emit('drag', { x, y });
@@ -136,11 +136,11 @@ const press = () => {
 
   if (key === 'ArrowLeft') {
     currentDirection = 'left';
-    character.style.transform = 'scaleX(-1)';
+    character.style.transform = 'scaleX(1)';
   }
   if (key === 'ArrowRight') {
     currentDirection = 'right';
-    character.style.transform = 'scaleX(1)';
+    character.style.transform = 'scaleX(-1)';
   }
 
   startMoving();

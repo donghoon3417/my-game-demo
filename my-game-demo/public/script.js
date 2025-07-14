@@ -19,7 +19,8 @@ function updateCharacterPosition(x, y) {
   characterY = y;
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
-  socket.emit('client-log', `키보드 좌표: ${characterX}, ${characterY}`);
+emit('position', position, broadcast=True, include_self=False)
+
 
 }
 

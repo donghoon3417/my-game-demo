@@ -190,7 +190,5 @@ document.addEventListener('touchend', () => {
 
 // 🔄 서버 위치 동기화
 socket.on('position', (pos) => {
-  if (!isDragging) {
-    updateCharacterPosition(pos.x, pos.y);
-  }
+  updateCharacterPosition(pos.x, pos.y);
 });

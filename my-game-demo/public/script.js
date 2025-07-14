@@ -136,11 +136,11 @@ const press = () => {
 
   if (key === 'ArrowLeft') {
     currentDirection = 'left';
-    character.style.transform = 'scaleX(1)';
+    character.style.transform = 'scaleX(-1)';
   }
   if (key === 'ArrowRight') {
     currentDirection = 'right';
-    character.style.transform = 'scaleX(-1)';
+    character.style.transform = 'scaleX(1)';
   }
 
   startMoving();

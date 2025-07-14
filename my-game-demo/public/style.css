@@ -66,8 +66,8 @@ body {
 /* ✅ 모바일 (가로폭 1024px 이하)에서는 캐릭터 크기를 더 작게 */
 @media (max-width: 1024px) {
   #character {
-    width: 3%;
-    height: 6%;
+    width: 6%;
+    height: 10%;
   }
 
   #buttons button {
@@ -76,3 +76,4 @@ body {
     font-size: 4vw;
   }
 }
+

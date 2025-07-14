@@ -4,7 +4,7 @@ const gameArea = document.getElementById('game-area');
 
 let characterX = 100;
 let characterY = 100;
-let currentDirection = 'right';
+let currentDirection = 'left';
 
 let isDragging = false;
 let offsetX = 0;

@@ -11,7 +11,7 @@ let offsetX = 0;
 let offsetY = 0;
 
 const isMobile = window.innerWidth <= 1024;
-const speed = isMobile ? 5 : 10;
+const speed = isMobile ? 1 : 10;
 
 const pressedKeys = new Set();
 let moveAnimationFrame = null;

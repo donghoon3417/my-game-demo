@@ -131,14 +131,21 @@ buttons.forEach(button => {
   const key = keyMap[button.textContent];
   if (!key) return;
 
-  const press = () => {
-    pressedKeys.add(key);
+const press = () => {
+  pressedKeys.add(key);
 
-    if (key === 'ArrowLeft') currentDirection = 'left';
-    if (key === 'ArrowRight') currentDirection = 'right';
+  if (key === 'ArrowLeft') {
+    currentDirection = 'left';
+    character.style.transform = 'scaleX(1)';
+  }
+  if (key === 'ArrowRight') {
+    currentDirection = 'right';
+    character.style.transform = 'scaleX(-1)';
+  }
 
-    startMoving();
-  };
+  startMoving();
+};
+
 
   const release = () => {
     pressedKeys.delete(key);

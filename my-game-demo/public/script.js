@@ -21,9 +21,9 @@ function updateCharacterFromServer(x, y) {
   character.style.top = `${y}px`;
   
   if (currentDirection === 'left') {
-    character.style.transform = 'scaleX(1)';
-  } else if (currentDirection === 'right') {
     character.style.transform = 'scaleX(-1)';
+  } else if (currentDirection === 'right') {
+    character.style.transform = 'scaleX(1)';
   }
 }
 

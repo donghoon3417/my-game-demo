@@ -42,9 +42,8 @@ def handle_drag(data):
    emit('position', position, broadcast=True, include_self=True)
 # 또는 include_self 생략 (기본값은 True)
 
-
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get('PORT', 5000))
-    socketio = SocketIO(app, cors_allowed_origins="*")
+    socketio.run(app, host='0.0.0.0', port=port)
+
 

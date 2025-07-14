@@ -5,7 +5,7 @@ from flask_socketio import SocketIO, emit
 app = Flask(__name__, static_folder='public')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-position = {'x': 100, 'y': 100}
+position = {'x': 100, 'y': 100, 'direction': 'left'}  # 초기 방향 포함
 
 @app.route('/')
 def index():
@@ -20,6 +20,7 @@ def handle_drag(data):
     global position
     position['x'] = data['x']
     position['y'] = data['y']
+    position['direction'] = data.get('direction', position['direction'])  # 추가
     emit('position', position, broadcast=True, include_self=False)
 
 if __name__ == '__main__':

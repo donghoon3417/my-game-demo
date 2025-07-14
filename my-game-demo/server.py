@@ -30,16 +30,21 @@ def handle_move(data):
         position['y'] -= 10
     elif direction == 'down':
         position['y'] += 10
-    emit('position', position, broadcast=True)
+   emit('position', position, broadcast=True, include_self=True)
+# 또는 include_self 생략 (기본값은 True)
+
 
 @socketio.on('drag')
 def handle_drag(data):
     global position
     position['x'] = data['x']
     position['y'] = data['y']
-    emit('position', position, broadcast=True, include_self=False)
+   emit('position', position, broadcast=True, include_self=True)
+# 또는 include_self 생략 (기본값은 True)
+
 
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port)
+    socketio = SocketIO(app, cors_allowed_origins="*")
+

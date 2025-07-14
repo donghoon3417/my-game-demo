@@ -1,6 +1,5 @@
 body {
   margin: 0;
-  padding: 0;
   background: #e0f7fa;
   font-family: sans-serif;
   text-align: center;
@@ -10,52 +9,73 @@ body {
   justify-content: center;
 }
 
-/* 게임 영역은 화면의 90% 너비, 60% 높이로 자동 조절 */
+/* 게임 영역 - 데스크탑 기준 */
 #game-area {
   position: relative;
-  width: 90vw;
-  height: 60vh;
+  width: 75vw;       /* 데스크탑 가로 1440px (1920 * 0.75) 정도 */
+  height: 65vh;      /* 데스크탑 세로 700px (1080 * 0.65) 정도 */
   background-color: #f0f0f0;
   margin: 0 auto;
   border: 2px solid #ccc;
   overflow: hidden;
 }
 
-/* 캐릭터 크기는 game-area의 약 10%로 비례 조절 */
+/* 캐릭터 - 게임영역 기준 약 1/10 */
 #character {
   position: absolute;
-  width: 10%;
-  height: 10%;
+  width: 80px;
+  height: 80px;
   background-image: url("images/anim1.gif");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  left: 10%;
-  top: 10%;
+  left: 100px;
+  top: 100px;
   transition: transform 0.1s linear;
 }
 
-/* 버튼 자동 크기 설정 */
 #buttons {
-  margin-top: 2vh;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 1.5vw;
+  gap: 12px;
 }
 
 #buttons button {
-  width: 10vw;
-  height: 10vw;
-  max-width: 80px;
-  max-height: 80px;
-  font-size: 3.5vw;
+  width: 80px;
+  height: 80px;
+  font-size: 28px;
   background-color: #00796b;
   color: white;
   border: none;
-  border-radius: 1vw;
+  border-radius: 10px;
 }
 
 #buttons button:active {
   background-color: #004d40;
+}
+
+/* 반응형: 갤럭시폴드4 등 모바일 대응 */
+@media (max-width: 1000px) {
+  #game-area {
+    width: 95vw;
+    height: 65vh;
+  }
+
+  #character {
+    width: 50px;
+    height: 50px;
+  }
+
+  #buttons {
+    margin-top: 16px;
+    gap: 10px;
+  }
+
+  #buttons button {
+    width: 60px;
+    height: 60px;
+    font-size: 22px;
+  }
 }

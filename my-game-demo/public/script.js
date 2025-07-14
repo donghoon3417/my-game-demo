@@ -191,15 +191,11 @@ document.addEventListener('touchend', () => {
 });
 
 socket.on('position', (pos) => {
-  updateCharacterFromServer(pos.x, pos.y);
-  
   if (pos.direction) {
     currentDirection = pos.direction;
-    if (currentDirection === 'left') {
-      character.style.transform = 'scaleX(1)';
-    } else if (currentDirection === 'right') {
-      character.style.transform = 'scaleX(-1)';
-    }
   }
+
+  updateCharacterFromServer(pos.x, pos.y);
 });
+
 

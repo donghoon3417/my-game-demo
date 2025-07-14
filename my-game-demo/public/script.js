@@ -190,7 +190,16 @@ document.addEventListener('touchend', () => {
   isDragging = false;
 });
 
-// 🔄 서버로부터 위치 수신
 socket.on('position', (pos) => {
   updateCharacterFromServer(pos.x, pos.y);
+  
+  if (pos.direction) {
+    currentDirection = pos.direction;
+    if (currentDirection === 'left') {
+      character.style.transform = 'scaleX(1)';
+    } else if (currentDirection === 'right') {
+      character.style.transform = 'scaleX(-1)';
+    }
+  }
 });
+

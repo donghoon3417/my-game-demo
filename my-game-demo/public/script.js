@@ -22,15 +22,25 @@ function updateCharacterFromServer(x, y) {
 }
 
 // 🧠 직접 조작 시 캐릭터 위치 변경 + 서버에 알림
+let lastDirection = 'left'; // 기본 방향은 왼쪽
+
 function updateCharacterPosition(x, y) {
   characterX = x;
   characterY = y;
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
 
+  // 방향 반영
+  if (lastDirection === 'right') {
+    character.style.transform = 'scaleX(1)';  // 오른쪽
+  } else {
+    character.style.transform = 'scaleX(-1)'; // 왼쪽
+  }
+
   // 서버에 위치 전송
   socket.emit('drag', { x, y });
 }
+
 
 function normalizeKey(key) {
   const map = {
@@ -80,8 +90,14 @@ function moveLoop() {
   let dx = 0;
   let dy = 0;
 
-  if (pressedKeys.has('ArrowLeft')) dx -= 1;
-  if (pressedKeys.has('ArrowRight')) dx += 1;
+  if (pressedKeys.has('ArrowLeft')) {
+    dx -= 1;
+    lastDirection = 'left';  // ⬅️ 마지막 방향 업데이트
+  }
+  if (pressedKeys.has('ArrowRight')) {
+    dx += 1;
+    lastDirection = 'right'; // ➡️ 마지막 방향 업데이트
+  }
   if (pressedKeys.has('ArrowUp')) dy -= 1;
   if (pressedKeys.has('ArrowDown')) dy += 1;
 
@@ -101,6 +117,7 @@ function moveLoop() {
 
   moveAnimationFrame = requestAnimationFrame(moveLoop);
 }
+
 
 function stopMoving() {
   if (moveAnimationFrame !== null) {

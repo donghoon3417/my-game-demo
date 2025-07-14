@@ -4,6 +4,7 @@ const gameArea = document.getElementById('game-area');
 
 let characterX = 100;
 let characterY = 100;
+let currentDirection = 'right';
 
 let isDragging = false;
 let offsetX = 0;
@@ -13,22 +14,31 @@ const speed = 10;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
-// 🔄 서버가 보내준 위치로 캐릭터 이동 (emit 없음!)
 function updateCharacterFromServer(x, y) {
   characterX = x;
   characterY = y;
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
+  
+  if (currentDirection === 'left') {
+    character.style.transform = 'scaleX(-1)';
+  } else if (currentDirection === 'right') {
+    character.style.transform = 'scaleX(1)';
+  }
 }
 
-// 🧠 직접 조작 시 캐릭터 위치 변경 + 서버에 알림
 function updateCharacterPosition(x, y) {
   characterX = x;
   characterY = y;
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
 
-  // 서버에 위치 전송
+  if (currentDirection === 'left') {
+    character.style.transform = 'scaleX(-1)';
+  } else if (currentDirection === 'right') {
+    character.style.transform = 'scaleX(1)';
+  }
+
   socket.emit('drag', { x, y });
 }
 
@@ -56,6 +66,10 @@ document.addEventListener('keydown', (e) => {
   if (validKeys.includes(e.key)) {
     const key = normalizeKey(e.key);
     pressedKeys.add(key);
+
+    if (key === 'ArrowLeft') currentDirection = 'left';
+    if (key === 'ArrowRight') currentDirection = 'right';
+
     startMoving();
   }
 });
@@ -119,6 +133,10 @@ buttons.forEach(button => {
 
   const press = () => {
     pressedKeys.add(key);
+
+    if (key === 'ArrowLeft') currentDirection = 'left';
+    if (key === 'ArrowRight') currentDirection = 'right';
+
     startMoving();
   };
 

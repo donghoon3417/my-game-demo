@@ -13,6 +13,15 @@ const speed = 10;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
+// 🔄 서버가 보내준 위치로 캐릭터 이동 (emit 없음!)
+function updateCharacterFromServer(x, y) {
+  characterX = x;
+  characterY = y;
+  character.style.left = `${x}px`;
+  character.style.top = `${y}px`;
+}
+
+// 🧠 직접 조작 시 캐릭터 위치 변경 + 서버에 알림
 function updateCharacterPosition(x, y) {
   characterX = x;
   characterY = y;
@@ -20,9 +29,8 @@ function updateCharacterPosition(x, y) {
   character.style.top = `${y}px`;
 
   // 서버에 위치 전송
-  socket.emit('drag', { x: characterX, y: characterY });
+  socket.emit('drag', { x, y });
 }
-
 
 function normalizeKey(key) {
   const map = {
@@ -39,8 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const parentRect = gameArea.getBoundingClientRect();
   characterX = rect.left - parentRect.left;
   characterY = rect.top - parentRect.top;
-});
 
+  updateCharacterFromServer(characterX, characterY);
+});
 
 document.addEventListener('keydown', (e) => {
   const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Left', 'Right', 'Up', 'Down'];
@@ -65,7 +74,7 @@ function startMoving() {
 function moveLoop() {
   if (isDragging) {
     moveAnimationFrame = requestAnimationFrame(moveLoop);
-    return; // 드래그 중이면 키보드 이동 중단
+    return;
   }
 
   let dx = 0;
@@ -90,12 +99,9 @@ function moveLoop() {
     updateCharacterPosition(newX, newY);
   }
 
-    // ✅ 서버에 실시간 위치 전송
-    socket.emit('drag', { x: newX, y: newY });
-  }
-
   moveAnimationFrame = requestAnimationFrame(moveLoop);
 }
+
 function stopMoving() {
   if (moveAnimationFrame !== null) {
     cancelAnimationFrame(moveAnimationFrame);
@@ -133,33 +139,6 @@ buttons.forEach(button => {
   button.addEventListener('touchend', release);
 });
 
-/*
-// 🖱 마우스 드래그
-character.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  const rect = character.getBoundingClientRect();
-  offsetX = e.clientX - rect.left;
-  offsetY = e.clientY - rect.top;
-  e.preventDefault();
-});
-
-
-document.addEventListener('mousemove', (e) => {
-  if (isDragging) {
-    let x = e.clientX - offsetX;
-    let y = e.clientY - offsetY;
-
-    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
-    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
-
-    updateCharacterPosition(x, y);
-  }
-});
-
-document.addEventListener('mouseup', () => {
-  isDragging = false;
-});
-*/
 // 📲 터치 드래그
 character.addEventListener('touchstart', (e) => {
   isDragging = true;
@@ -182,12 +161,11 @@ document.addEventListener('touchmove', (e) => {
   }
 }, { passive: false });
 
-
 document.addEventListener('touchend', () => {
   isDragging = false;
 });
 
-// 🔄 서버 위치 동기화
+// 🔄 서버로부터 위치 수신
 socket.on('position', (pos) => {
-  updateCharacterPosition(pos.x, pos.y);
+  updateCharacterFromServer(pos.x, pos.y);
 });

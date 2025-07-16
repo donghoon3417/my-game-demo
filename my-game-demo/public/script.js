@@ -195,20 +195,23 @@ document.addEventListener('touchend', () => {
 
 socket.on('position', (pos) => {
   if (pos.direction) currentDirection = pos.direction;
+
   const centerX = pos.x * gameArea.clientWidth;
   const centerY = pos.y * gameArea.clientHeight;
   const x = centerX - character.clientWidth / 2;
   const y = centerY - character.clientHeight / 2;
   const safeX = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
   const safeY = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+
   updateCharacterFromServer(safeX, safeY);
 
-    // 🔽 이동 중일 때 애니메이션 적용
-  updateCharacterImage(true);
+  // ✅ 애니메이션 적용 (이동 중)
+  setCharacterAnimation(true);
 
-  // 일정 시간 뒤 자동으로 정지 이미지로 변경
+  // ✅ 일정 시간 후 정지 이미지로 전환
   clearTimeout(window.animTimeout);
   window.animTimeout = setTimeout(() => {
-    updateCharacterImage(false);
-  }, 200);  // 0.2초 뒤 정지로 처리
+    setCharacterAnimation(false);
+  }, 200); // 0.2초 후 정지 이미지
 });
+

@@ -16,11 +16,12 @@ const speed = isMobile ? 5 : 10;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
-function updateCharacterFromServer(x, y) {
-  characterX = x;
-  characterY = y;
-  character.style.left = `${x}px`;
-  character.style.top = `${y}px`;
+function setCharacterAnimation(running) {
+  if (running) {
+    character.style.backgroundImage = "url('./images/anim11.gif')";
+  } else {
+    character.style.backgroundImage = "url('./images/anim1.gif')";
+  }
 
   if (currentDirection === 'left') {
     character.style.transform = 'scaleX(1)';
@@ -29,19 +30,22 @@ function updateCharacterFromServer(x, y) {
   }
 }
 
+function updateCharacterFromServer(x, y) {
+  characterX = x;
+  characterY = y;
+  character.style.left = `${x}px`;
+  character.style.top = `${y}px`;
+  setCharacterAnimation(false);
+}
+
 function updateCharacterPosition(x, y) {
   characterX = x;
   characterY = y;
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
 
-  if (currentDirection === 'left') {
-    character.style.transform = 'scaleX(1)';
-  } else if (currentDirection === 'right') {
-    character.style.transform = 'scaleX(-1)';
-  }
+  setCharacterAnimation(true);
 
-  // 중심 기준으로 비율 계산 후 서버로 전송
   const centerX = x + character.clientWidth / 2;
   const centerY = y + character.clientHeight / 2;
   const ratioX = centerX / gameArea.clientWidth;
@@ -65,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const parentRect = gameArea.getBoundingClientRect();
   characterX = rect.left - parentRect.left;
   characterY = rect.top - parentRect.top;
-
   updateCharacterFromServer(characterX, characterY);
 });
 
@@ -78,6 +81,7 @@ document.addEventListener('keydown', (e) => {
     if (key === 'ArrowLeft') currentDirection = 'left';
     if (key === 'ArrowRight') currentDirection = 'right';
 
+    setCharacterAnimation(true);
     startMoving();
   }
 });
@@ -115,7 +119,6 @@ function moveLoop() {
     let newX = characterX + dx;
     let newY = characterY + dy;
 
-    // 좌상단 기준으로 범위 제한
     newX = Math.max(0, Math.min(newX, gameArea.clientWidth - character.clientWidth));
     newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
 
@@ -130,9 +133,9 @@ function stopMoving() {
     cancelAnimationFrame(moveAnimationFrame);
     moveAnimationFrame = null;
   }
+  setCharacterAnimation(false);
 }
 
-// 📱 버튼 이동 처리
 const buttons = document.querySelectorAll('#buttons button');
 const keyMap = { '↑': 'ArrowUp', '↓': 'ArrowDown', '←': 'ArrowLeft', '→': 'ArrowRight' };
 
@@ -142,16 +145,9 @@ buttons.forEach(button => {
 
   const press = () => {
     pressedKeys.add(key);
-
-    if (key === 'ArrowLeft') {
-      currentDirection = 'left';
-      character.style.transform = 'scaleX(1)';
-    }
-    if (key === 'ArrowRight') {
-      currentDirection = 'right';
-      character.style.transform = 'scaleX(-1)';
-    }
-
+    if (key === 'ArrowLeft') currentDirection = 'left';
+    if (key === 'ArrowRight') currentDirection = 'right';
+    setCharacterAnimation(true);
     startMoving();
   };
 
@@ -172,7 +168,6 @@ buttons.forEach(button => {
   button.addEventListener('touchend', release);
 });
 
-// 📲 터치 드래그
 character.addEventListener('touchstart', (e) => {
   isDragging = true;
   const touch = e.touches[0];
@@ -198,20 +193,13 @@ document.addEventListener('touchend', () => {
   isDragging = false;
 });
 
-// 📡 서버에서 좌표 수신
 socket.on('position', (pos) => {
-  if (pos.direction) {
-    currentDirection = pos.direction;
-  }
-
+  if (pos.direction) currentDirection = pos.direction;
   const centerX = pos.x * gameArea.clientWidth;
   const centerY = pos.y * gameArea.clientHeight;
-
   const x = centerX - character.clientWidth / 2;
   const y = centerY - character.clientHeight / 2;
-
   const safeX = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
   const safeY = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
-
   updateCharacterFromServer(safeX, safeY);
 });

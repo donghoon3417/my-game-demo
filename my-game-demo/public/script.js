@@ -41,9 +41,11 @@ function updateCharacterPosition(x, y) {
     character.style.transform = 'scaleX(-1)';
   }
 
-  // 캐릭터 중심 좌표 → 비율 좌표로 전송
-  const ratioX = (x + character.clientWidth / 2) / gameArea.clientWidth;
-  const ratioY = (y + character.clientHeight / 2) / gameArea.clientHeight;
+  // 중심 기준으로 비율 계산 후 서버로 전송
+  const centerX = x + character.clientWidth / 2;
+  const centerY = y + character.clientHeight / 2;
+  const ratioX = centerX / gameArea.clientWidth;
+  const ratioY = centerY / gameArea.clientHeight;
 
   socket.emit('drag', { x: ratioX, y: ratioY, direction: currentDirection });
 }
@@ -113,14 +115,9 @@ function moveLoop() {
     let newX = characterX + dx;
     let newY = characterY + dy;
 
-    // 캐릭터 중심이 영역 밖으로 안 나가게 보정
-    const halfW = character.clientWidth / 2;
-    const halfH = character.clientHeight / 2;
-
-   // 수정된 코드 (좌상단 기준)
-  newX = Math.max(0, Math.min(newX, gameArea.clientWidth - character.clientWidth));
-  newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
-
+    // 좌상단 기준으로 범위 제한
+    newX = Math.max(0, Math.min(newX, gameArea.clientWidth - character.clientWidth));
+    newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
 
     updateCharacterPosition(newX, newY);
   }
@@ -207,16 +204,10 @@ socket.on('position', (pos) => {
     currentDirection = pos.direction;
   }
 
-  // 비율 좌표를 중심 기준으로 환산
   const centerX = pos.x * gameArea.clientWidth;
   const centerY = pos.y * gameArea.clientHeight;
 
   const x = centerX - character.clientWidth / 2;
   const y = centerY - character.clientHeight / 2;
 
-  // 보정: 완전히 벗어나는 것 방지
-  const safeX = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
-  const safeY = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
-
-  updateCharacterFromServer(safeX, safeY);
-});
+  const safeX = Math.max(0

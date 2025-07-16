@@ -113,8 +113,12 @@ function moveLoop() {
     let newX = characterX + dx;
     let newY = characterY + dy;
 
-    newX = Math.max(0, Math.min(newX, gameArea.clientWidth - character.clientWidth));
-    newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
+    const halfW = character.clientWidth / 2;
+    const halfH = character.clientHeight / 2;
+
+    newX = Math.max(0 + halfW, Math.min(newX, gameArea.clientWidth - halfW));
+    newY = Math.max(0 + halfH, Math.min(newY, gameArea.clientHeight - halfH));
+
 
     updateCharacterPosition(newX, newY);
   }

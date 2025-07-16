@@ -23,9 +23,7 @@ function setCharacterAnimation(running, overrideAnim = null) {
     currentAnim = overrideAnim;
     character.style.backgroundImage = `url('${overrideAnim}')`;
   } else {
-    currentAnim = running
-      ? './images/anim11.gif'
-      : './images/anim1.gif';
+    currentAnim = running ? './images/anim11.gif' : './images/anim1.gif';
     character.style.backgroundImage = `url('${currentAnim}')`;
   }
 
@@ -50,7 +48,6 @@ function updateCharacterPosition(x, y) {
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
 
-  // ✅ 드래그 중일 땐 정지 이미지
   if (!isDragging) {
     setCharacterAnimation(true);
   } else {
@@ -62,7 +59,6 @@ function updateCharacterPosition(x, y) {
   const ratioX = centerX / gameArea.clientWidth;
   const ratioY = centerY / gameArea.clientHeight;
 
-  // 👇 이 위치가 맞고, 함수는 여기서 닫혀야 함
   socket.emit('drag', {
     x: ratioX,
     y: ratioY,
@@ -70,16 +66,15 @@ function updateCharacterPosition(x, y) {
     dragging: isDragging,
     anim: currentAnim
   });
-} // ← 이 중괄호가 현재 코드에 빠져 있음!
+}
 
 function normalizeKey(key) {
-const keyMap = {
-  '↑': 'ArrowUp',
-  '↓': 'ArrowDown',
-  '←': 'ArrowLeft',
-  '→': 'ArrowRight',
-  'A': 'a'  // ✅ A 버튼도 키처럼 취급
-};
+  const map = {
+    'Up': 'ArrowUp',
+    'Down': 'ArrowDown',
+    'Left': 'ArrowLeft',
+    'Right': 'ArrowRight'
+  };
   return map[key] || key;
 }
 
@@ -99,10 +94,23 @@ document.addEventListener('keydown', (e) => {
   if (validKeys.includes(e.key)) {
     const key = normalizeKey(e.key);
 
-    // a 키 특별 처리
     if (e.key === 'a') {
       setCharacterAnimation(true, './images/anim12.gif');
-      return; // 방향 이동은 하지 않음
+
+      const centerX = characterX + character.clientWidth / 2;
+      const centerY = characterY + character.clientHeight / 2;
+      const ratioX = centerX / gameArea.clientWidth;
+      const ratioY = centerY / gameArea.clientHeight;
+
+      socket.emit('drag', {
+        x: ratioX,
+        y: ratioY,
+        direction: currentDirection,
+        dragging: isDragging,
+        anim: './images/anim12.gif'
+      });
+
+      return;
     }
 
     pressedKeys.add(key);
@@ -119,15 +127,27 @@ document.addEventListener('keyup', (e) => {
   const key = normalizeKey(e.key);
 
   if (e.key === 'a') {
-    // a 키에서 손을 뗐을 때 기본 정지 이미지로 전환
     setCharacterAnimation(false);
+
+    const centerX = characterX + character.clientWidth / 2;
+    const centerY = characterY + character.clientHeight / 2;
+    const ratioX = centerX / gameArea.clientWidth;
+    const ratioY = centerY / gameArea.clientHeight;
+
+    socket.emit('drag', {
+      x: ratioX,
+      y: ratioY,
+      direction: currentDirection,
+      dragging: isDragging,
+      anim: './images/anim1.gif'
+    });
+
     return;
   }
 
   pressedKeys.delete(key);
   if (pressedKeys.size === 0) stopMoving();
 });
-
 
 function startMoving() {
   if (moveAnimationFrame !== null) return;
@@ -174,35 +194,65 @@ function stopMoving() {
 }
 
 const buttons = document.querySelectorAll('#buttons button');
-const keyMap = { '↑': 'ArrowUp', '↓': 'ArrowDown', '←': 'ArrowLeft', '→': 'ArrowRight' };
+const keyMap = {
+  '↑': 'ArrowUp',
+  '↓': 'ArrowDown',
+  '←': 'ArrowLeft',
+  '→': 'ArrowRight',
+  'A': 'a'
+};
 
 buttons.forEach(button => {
   const key = keyMap[button.textContent];
   if (!key) return;
 
-const press = () => {
-  pressedKeys.add(key);
+  const press = () => {
+    pressedKeys.add(key);
+    if (key === 'ArrowLeft') currentDirection = 'left';
+    if (key === 'ArrowRight') currentDirection = 'right';
 
-  if (key === 'ArrowLeft') currentDirection = 'left';
-  if (key === 'ArrowRight') currentDirection = 'right';
+    if (key === 'a') {
+      setCharacterAnimation(true, './images/anim12.gif');
 
-  if (key === 'a') {
-    setCharacterAnimation(true, './images/anim12.gif');
-  } else {
-    setCharacterAnimation(true);
-    startMoving();
-  }
-};
+      const centerX = characterX + character.clientWidth / 2;
+      const centerY = characterY + character.clientHeight / 2;
+      const ratioX = centerX / gameArea.clientWidth;
+      const ratioY = centerY / gameArea.clientHeight;
 
-const release = () => {
-  pressedKeys.delete(key);
+      socket.emit('drag', {
+        x: ratioX,
+        y: ratioY,
+        direction: currentDirection,
+        dragging: isDragging,
+        anim: './images/anim12.gif'
+      });
+    } else {
+      setCharacterAnimation(true);
+      startMoving();
+    }
+  };
 
-  if (key === 'a') {
-    setCharacterAnimation(false);
-  }
+  const release = () => {
+    pressedKeys.delete(key);
+    if (key === 'a') {
+      setCharacterAnimation(false);
 
-  if (pressedKeys.size === 0) stopMoving();
-};
+      const centerX = characterX + character.clientWidth / 2;
+      const centerY = characterY + character.clientHeight / 2;
+      const ratioX = centerX / gameArea.clientWidth;
+      const ratioY = centerY / gameArea.clientHeight;
+
+      socket.emit('drag', {
+        x: ratioX,
+        y: ratioY,
+        direction: currentDirection,
+        dragging: isDragging,
+        anim: './images/anim1.gif'
+      });
+    }
+
+    if (pressedKeys.size === 0) stopMoving();
+  };
 
   button.addEventListener('mousedown', press);
   button.addEventListener('mouseup', release);
@@ -233,9 +283,7 @@ document.addEventListener('touchmove', (e) => {
     x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
     y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
 
-    // 👇 드래그 중에는 정지 이미지 유지
     setCharacterAnimation(false);
-
     updateCharacterPosition(x, y);
   }
 }, { passive: false });
@@ -244,9 +292,6 @@ document.addEventListener('touchend', () => {
   isDragging = false;
 });
 
-// -----------------------------
-// 🖱️ 데스크탑 마우스 드래그
-// -----------------------------
 character.addEventListener('mousedown', (e) => {
   isDragging = true;
   offsetX = e.clientX - character.offsetLeft;
@@ -262,7 +307,7 @@ document.addEventListener('mousemove', (e) => {
     x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
     y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
 
-    setCharacterAnimation(false); // 정지 상태 이미지
+    setCharacterAnimation(false);
     updateCharacterPosition(x, y);
   }
 });
@@ -285,7 +330,7 @@ socket.on('position', (pos) => {
 
   if (!isDragging) {
     if (pos.anim) {
-      character.style.backgroundImage = `url('${pos.anim}')`;  // 👈 서버로부터 받은 애니메이션
+      character.style.backgroundImage = `url('${pos.anim}')`;
     }
 
     if (pos.dragging) {
@@ -297,7 +342,6 @@ socket.on('position', (pos) => {
       }, 200);
     }
 
-    // 좌우 반전도 함께 반영
     if (pos.direction === 'left') {
       character.style.transform = 'scaleX(1)';
     } else if (pos.direction === 'right') {
@@ -305,7 +349,3 @@ socket.on('position', (pos) => {
     }
   }
 });
-
-
-
-

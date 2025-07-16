@@ -228,7 +228,6 @@ document.addEventListener('mouseup', () => {
   isDragging = false;
 });
 
-
 socket.on('position', (pos) => {
   if (pos.direction) currentDirection = pos.direction;
 
@@ -241,13 +240,16 @@ socket.on('position', (pos) => {
 
   updateCharacterFromServer(safeX, safeY);
 
-  // ✅ 애니메이션 적용 (이동 중)
-  setCharacterAnimation(true);
+  // ✅ 드래그 중이 아닐 때만 애니메이션 적용
+  if (!isDragging) {
+    setCharacterAnimation(true);
 
-  // ✅ 일정 시간 후 정지 이미지로 전환
-  clearTimeout(window.animTimeout);
-  window.animTimeout = setTimeout(() => {
-    setCharacterAnimation(false);
-  }, 200); // 0.2초 후 정지 이미지
+    clearTimeout(window.animTimeout);
+    window.animTimeout = setTimeout(() => {
+      setCharacterAnimation(false);
+    }, 200);
+  }
+});
+0); // 0.2초 후 정지 이미지
 });
 

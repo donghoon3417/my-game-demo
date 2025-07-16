@@ -181,20 +181,20 @@ function moveLoop() {
   }
 
   // ✅ 조건 분기 정리
-  if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
-    if (pressedKeys.has('a')) {
-      if (currentAnim !== './images/anim12.gif') {
-        setCharacterAnimation(true, './images/anim12.gif');
-      }
-    } else {
-      if (currentAnim !== './images/anim11.gif') {
-        setCharacterAnimation(true); // 기본 애니메이션 (anim11)
-      }
+if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
+  if (pressedKeys.has('a')) {
+    // 현재 anim12가 아니라면 다시 설정
+    if (currentAnim !== './images/anim12.gif') {
+      setCharacterAnimation(true, './images/anim12.gif');
     }
-
-    updateCharacterPosition(newX, newY);
+  } else {
+    // a가 눌리지 않았을 때만 anim11로 설정
+    if (currentAnim !== './images/anim11.gif') {
+      setCharacterAnimation(true, './images/anim11.gif');
+    }
   }
-
+  updateCharacterPosition(newX, newY);
+}
   moveAnimationFrame = requestAnimationFrame(moveLoop);
 }
 

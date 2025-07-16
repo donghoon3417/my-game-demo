@@ -168,35 +168,29 @@ function moveLoop() {
   if (pressedKeys.has('ArrowUp')) dy -= 1;
   if (pressedKeys.has('ArrowDown')) dy += 1;
 
-  if (pressedKeys.has('a')) {
-    setCharacterAnimation(true, './images/anim12.gif');
+  let newX = characterX;
+  let newY = characterY;
 
-    const centerX = characterX + character.clientWidth / 2;
-    const centerY = characterY + character.clientHeight / 2;
-    const ratioX = centerX / gameArea.clientWidth;
-    const ratioY = centerY / gameArea.clientHeight;
-
-    socket.emit('drag', {
-      x: ratioX,
-      y: ratioY,
-      direction: currentDirection,
-      dragging: isDragging,
-      anim: './images/anim12.gif'
-    });
-  }
-
-  if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
+  if (dx !== 0 || dy !== 0) {
     const length = Math.sqrt(dx * dx + dy * dy);
     dx = (dx / length || 0) * speed;
     dy = (dy / length || 0) * speed;
 
-    let newX = characterX + dx;
-    let newY = characterY + dy;
+    newX = characterX + dx;
+    newY = characterY + dy;
 
     newX = Math.max(0, Math.min(newX, gameArea.clientWidth - character.clientWidth));
     newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
+  }
 
-    updateCharacterPosition(newX, newY);
+  // 👉 방향키 이동이 있거나, a 키가 눌려있으면 위치/애니메이션 업데이트
+  if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
+    if (pressedKeys.has('a')) {
+      setCharacterAnimation(true, './images/anim12.gif');
+      currentAnim = './images/anim12.gif'; // ← 이거 꼭 추가!
+    }
+
+    updateCharacterPosition(newX, newY); // 💡 여기서 emit도 됨
   }
 
   moveAnimationFrame = requestAnimationFrame(moveLoop);

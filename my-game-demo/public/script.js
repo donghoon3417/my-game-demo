@@ -19,13 +19,17 @@ let moveAnimationFrame = null;
 let currentAnim = './images/anim1.gif';
 
 function setCharacterAnimation(running, overrideAnim = null) {
+  let newAnim;
   if (overrideAnim) {
-    currentAnim = overrideAnim;
-    character.style.backgroundImage = `url('${overrideAnim}')`;
+    newAnim = overrideAnim;
   } else {
-    currentAnim = running ? './images/anim11.gif' : './images/anim1.gif';
-    character.style.backgroundImage = `url('${currentAnim}')`;
+    newAnim = running ? './images/anim11.gif' : './images/anim1.gif';
   }
+
+  if (newAnim === currentAnim) return; // ✅ 중복 설정 방지
+
+  currentAnim = newAnim;
+  character.style.backgroundImage = `url('${newAnim}')`;
 
   if (currentDirection === 'left') {
     character.style.transform = 'scaleX(1)';

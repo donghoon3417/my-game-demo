@@ -19,10 +19,18 @@ def serve_file(path):
 @socketio.on('drag')
 def handle_drag(data):
     global position
-    position['x'] = data['x']  # 0~1 비율값
+    position['x'] = data['x']
     position['y'] = data['y']
     position['direction'] = data.get('direction', position['direction'])
-    emit('position', position, broadcast=True, include_self=False)
+    
+    # 👉 dragging 값도 포함해서 전달
+    emit('position', {
+        'x': position['x'],
+        'y': position['y'],
+        'direction': position['direction'],
+        'dragging': data.get('dragging', False)  # 없으면 False 처리
+    }, broadcast=True, include_self=False)
+
 
 @socketio.on('move')
 def handle_move(data):

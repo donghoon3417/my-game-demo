@@ -16,7 +16,7 @@ const speed = isMobile ? 5 : 10;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
-let currentAnim = './images/anim1.gif'; // 초기값
+let currentAnim = './images/anim1.gif';
 
 function setCharacterAnimation(running, overrideAnim = null) {
   if (overrideAnim) {
@@ -87,10 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('keydown', (e) => {
-  const validKeys = [
-    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-    'Left', 'Right', 'Up', 'Down', 'a'
-  ];
+  const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Left', 'Right', 'Up', 'Down', 'a'];
   if (validKeys.includes(e.key)) {
     const key = normalizeKey(e.key);
 
@@ -110,11 +107,12 @@ document.addEventListener('keydown', (e) => {
         anim: './images/anim12.gif'
       });
 
+      pressedKeys.add('a');
+      startMoving();
       return;
     }
 
     pressedKeys.add(key);
-
     if (key === 'ArrowLeft') currentDirection = 'left';
     if (key === 'ArrowRight') currentDirection = 'right';
 
@@ -142,6 +140,8 @@ document.addEventListener('keyup', (e) => {
       anim: './images/anim1.gif'
     });
 
+    pressedKeys.delete('a');
+    if (pressedKeys.size === 0) stopMoving();
     return;
   }
 
@@ -183,14 +183,13 @@ function moveLoop() {
     newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
   }
 
-  // 👉 방향키 이동이 있거나, a 키가 눌려있으면 위치/애니메이션 업데이트
   if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
     if (pressedKeys.has('a')) {
       setCharacterAnimation(true, './images/anim12.gif');
-      currentAnim = './images/anim12.gif'; // ← 이거 꼭 추가!
+      currentAnim = './images/anim12.gif';
     }
 
-    updateCharacterPosition(newX, newY); // 💡 여기서 emit도 됨
+    updateCharacterPosition(newX, newY);
   }
 
   moveAnimationFrame = requestAnimationFrame(moveLoop);
@@ -217,39 +216,38 @@ buttons.forEach(button => {
   const key = keyMap[button.textContent];
   if (!key) return;
 
- const press = () => {
-  pressedKeys.add(key);
-  if (key === 'ArrowLeft') currentDirection = 'left';
-  if (key === 'ArrowRight') currentDirection = 'right';
+  const press = () => {
+    pressedKeys.add(key);
+    if (key === 'ArrowLeft') currentDirection = 'left';
+    if (key === 'ArrowRight') currentDirection = 'right';
 
-  if (key === 'a') {
-    setCharacterAnimation(true, './images/anim12.gif');
-    currentAnim = './images/anim12.gif';
+    if (key === 'a') {
+      setCharacterAnimation(true, './images/anim12.gif');
+      currentAnim = './images/anim12.gif';
 
-    const centerX = characterX + character.clientWidth / 2;
-    const centerY = characterY + character.clientHeight / 2;
-    const ratioX = centerX / gameArea.clientWidth;
-    const ratioY = centerY / gameArea.clientHeight;
+      const centerX = characterX + character.clientWidth / 2;
+      const centerY = characterY + character.clientHeight / 2;
+      const ratioX = centerX / gameArea.clientWidth;
+      const ratioY = centerY / gameArea.clientHeight;
 
-    socket.emit('drag', {
-      x: ratioX,
-      y: ratioY,
-      direction: currentDirection,
-      dragging: isDragging,
-      anim: './images/anim12.gif'
-    });
+      socket.emit('drag', {
+        x: ratioX,
+        y: ratioY,
+        direction: currentDirection,
+        dragging: isDragging,
+        anim: './images/anim12.gif'
+      });
 
-    startMoving(); // ✅ 중요: a 버튼 눌렀을 때도 loop 시작
-  } else {
-    setCharacterAnimation(true);
-    startMoving();
-  }
-};
+      startMoving(); // ✅ 중요
+    } else {
+      setCharacterAnimation(true);
+      startMoving();
+    }
+  };
 
   const release = () => {
     pressedKeys.delete(key);
     if (key === 'a') {
-      pressedKeys.delete('a');  // ← 추가
       setCharacterAnimation(false);
 
       const centerX = characterX + character.clientWidth / 2;

@@ -185,6 +185,9 @@ document.addEventListener('touchmove', (e) => {
     x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
     y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
 
+    // 👇 드래그 중에는 정지 이미지 유지
+    setCharacterAnimation(false);
+
     updateCharacterPosition(x, y);
   }
 }, { passive: false });

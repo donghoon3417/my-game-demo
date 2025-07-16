@@ -62,7 +62,7 @@ socket.emit('drag', {
   direction: currentDirection,
   dragging: isDragging  // 👈 드래그 상태 추가
 });
-
+}
 
 function normalizeKey(key) {
   const map = {

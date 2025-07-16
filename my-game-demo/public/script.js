@@ -224,6 +224,7 @@ buttons.forEach(button => {
 
     if (key === 'a') {
       setCharacterAnimation(true, './images/anim12.gif');
+      currentAnim = './images/anim12.gif'; // 👈 명확하게 설정!
 
       const centerX = characterX + character.clientWidth / 2;
       const centerY = characterY + character.clientHeight / 2;
@@ -239,9 +240,12 @@ buttons.forEach(button => {
       });
     } else {
       setCharacterAnimation(true);
-      startMoving();
-    }
-  };
+    startMoving(); // ✅ a 버튼에서도 moveLoop 실행되게 추가
+  } else {
+    setCharacterAnimation(true);
+    startMoving();
+  }
+};
 
   const release = () => {
     pressedKeys.delete(key);

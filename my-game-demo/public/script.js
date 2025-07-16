@@ -217,34 +217,34 @@ buttons.forEach(button => {
   const key = keyMap[button.textContent];
   if (!key) return;
 
-  const press = () => {
-    pressedKeys.add(key);
-    if (key === 'ArrowLeft') currentDirection = 'left';
-    if (key === 'ArrowRight') currentDirection = 'right';
+ const press = () => {
+  pressedKeys.add(key);
+  if (key === 'ArrowLeft') currentDirection = 'left';
+  if (key === 'ArrowRight') currentDirection = 'right';
 
-    if (key === 'a') {
-      setCharacterAnimation(true, './images/anim12.gif');
-      currentAnim = './images/anim12.gif'; // 👈 명확하게 설정!
+  if (key === 'a') {
+    setCharacterAnimation(true, './images/anim12.gif');
+    currentAnim = './images/anim12.gif';
 
-      const centerX = characterX + character.clientWidth / 2;
-      const centerY = characterY + character.clientHeight / 2;
-      const ratioX = centerX / gameArea.clientWidth;
-      const ratioY = centerY / gameArea.clientHeight;
+    const centerX = characterX + character.clientWidth / 2;
+    const centerY = characterY + character.clientHeight / 2;
+    const ratioX = centerX / gameArea.clientWidth;
+    const ratioY = centerY / gameArea.clientHeight;
 
-      socket.emit('drag', {
-        x: ratioX,
-        y: ratioY,
-        direction: currentDirection,
-        dragging: isDragging,
-        anim: './images/anim12.gif'
-      });
-    } else {
-      setCharacterAnimation(true);
-    startMoving(); // ✅ a 버튼에서도 moveLoop 실행되게 추가
+    socket.emit('drag', {
+      x: ratioX,
+      y: ratioY,
+      direction: currentDirection,
+      dragging: isDragging,
+      anim: './images/anim12.gif'
+    });
+
+    startMoving(); // ✅ 중요: a 버튼 눌렀을 때도 loop 시작
   } else {
     setCharacterAnimation(true);
     startMoving();
   }
+};
 
   const release = () => {
     pressedKeys.delete(key);

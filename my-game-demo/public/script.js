@@ -117,8 +117,10 @@ function moveLoop() {
     const halfW = character.clientWidth / 2;
     const halfH = character.clientHeight / 2;
 
-    newX = Math.max(0 + halfW, Math.min(newX, gameArea.clientWidth - halfW));
-    newY = Math.max(0 + halfH, Math.min(newY, gameArea.clientHeight - halfH));
+   // 수정된 코드 (좌상단 기준)
+  newX = Math.max(0, Math.min(newX, gameArea.clientWidth - character.clientWidth));
+  newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
+
 
     updateCharacterPosition(newX, newY);
   }

@@ -62,15 +62,15 @@ function updateCharacterPosition(x, y) {
   const ratioX = centerX / gameArea.clientWidth;
   const ratioY = centerY / gameArea.clientHeight;
 
-// 예: updateCharacterPosition 함수 안에서
-socket.emit('drag', {
-  x: ratioX,
-  y: ratioY,
-  direction: currentDirection,
-  dragging: isDragging,
-  anim: currentAnim // 👈 현재 애니메이션 상태 전송
-});
-}
+  // 👇 이 위치가 맞고, 함수는 여기서 닫혀야 함
+  socket.emit('drag', {
+    x: ratioX,
+    y: ratioY,
+    direction: currentDirection,
+    dragging: isDragging,
+    anim: currentAnim
+  });
+} // ← 이 중괄호가 현재 코드에 빠져 있음!
 
 function normalizeKey(key) {
   const map = {

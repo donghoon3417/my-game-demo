@@ -202,4 +202,13 @@ socket.on('position', (pos) => {
   const safeX = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
   const safeY = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
   updateCharacterFromServer(safeX, safeY);
+
+    // 🔽 이동 중일 때 애니메이션 적용
+  updateCharacterImage(true);
+
+  // 일정 시간 뒤 자동으로 정지 이미지로 변경
+  clearTimeout(window.animTimeout);
+  window.animTimeout = setTimeout(() => {
+    updateCharacterImage(false);
+  }, 200);  // 0.2초 뒤 정지로 처리
 });

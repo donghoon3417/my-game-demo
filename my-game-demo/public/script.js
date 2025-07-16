@@ -48,12 +48,8 @@ function updateCharacterPosition(x, y) {
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
 
-  if (!isDragging) {
-    setCharacterAnimation(true);
-  } else {
-    setCharacterAnimation(false);
-  }
-
+  // ❌ 여기서 setCharacterAnimation 호출 제거!
+  // 애니메이션 설정은 moveLoop나 key handler에서만 하도록
   const centerX = x + character.clientWidth / 2;
   const centerY = y + character.clientHeight / 2;
   const ratioX = centerX / gameArea.clientWidth;
@@ -67,6 +63,7 @@ function updateCharacterPosition(x, y) {
     anim: currentAnim
   });
 }
+
 
 function normalizeKey(key) {
   const map = {

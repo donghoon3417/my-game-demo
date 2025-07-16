@@ -183,13 +183,16 @@ function moveLoop() {
     newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
   }
 
-  // ✅ 이 부분 수정: a키를 누르고 있는 중이면 anim12로, 아니면 방향키에 따라 anim11
+  // ✅ 조건 분기 정리
   if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
     if (pressedKeys.has('a')) {
-      setCharacterAnimation(true, './images/anim12.gif');
-      currentAnim = './images/anim12.gif';
+      if (currentAnim !== './images/anim12.gif') {
+        setCharacterAnimation(true, './images/anim12.gif');
+      }
     } else {
-      setCharacterAnimation(true);  // anim11.gif
+      if (currentAnim !== './images/anim11.gif') {
+        setCharacterAnimation(true); // 기본 애니메이션 (anim11)
+      }
     }
 
     updateCharacterPosition(newX, newY);

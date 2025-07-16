@@ -78,5 +78,10 @@ body {
     height: 14vw;
     font-size: 4vw;
   }
+
+    #game-area {
+    width: 100vw;
+    height: 60vh; /* 👉 모바일은 고정 높이 사용 */
+    aspect-ratio: auto;
 }
 

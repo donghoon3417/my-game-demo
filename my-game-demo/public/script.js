@@ -210,4 +210,8 @@ socket.on('position', (pos) => {
   const x = centerX - character.clientWidth / 2;
   const y = centerY - character.clientHeight / 2;
 
-  const safeX = Math.max(0
+  const safeX = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
+  const safeY = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+
+  updateCharacterFromServer(safeX, safeY);
+});

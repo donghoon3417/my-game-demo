@@ -68,8 +68,8 @@ body {
 /* ✅ 모바일 (가로폭 1024px 이하)에서는 캐릭터 크기를 더 작게 */
 @media (max-width: 1024px) {
   #character {
-    width: 6%;         /* 모바일에서는 더 커지도록 */
-    height: 10%;
+    width: 60px;
+    height: 90px;
     background-size: contain; /* 짤림 방지 */
   }
 

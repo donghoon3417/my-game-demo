@@ -16,11 +16,13 @@ const speed = isMobile ? 5 : 10;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
-function setCharacterAnimation(running) {
-  if (running) {
-    character.style.backgroundImage = "url('./images/anim11.gif')";
+function setCharacterAnimation(running, overrideAnim = null) {
+  if (overrideAnim) {
+    character.style.backgroundImage = `url('${overrideAnim}')`;
   } else {
-    character.style.backgroundImage = "url('./images/anim1.gif')";
+    character.style.backgroundImage = running
+      ? "url('./images/anim11.gif')"
+      : "url('./images/anim1.gif')";
   }
 
   if (currentDirection === 'left') {
@@ -83,9 +85,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('keydown', (e) => {
-  const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Left', 'Right', 'Up', 'Down'];
+  const validKeys = [
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'Left', 'Right', 'Up', 'Down', 'a'
+  ];
   if (validKeys.includes(e.key)) {
     const key = normalizeKey(e.key);
+
+    // a 키 특별 처리
+    if (e.key === 'a') {
+      setCharacterAnimation(true, './images/anim12.gif');
+      return; // 방향 이동은 하지 않음
+    }
+
     pressedKeys.add(key);
 
     if (key === 'ArrowLeft') currentDirection = 'left';
@@ -98,9 +110,17 @@ document.addEventListener('keydown', (e) => {
 
 document.addEventListener('keyup', (e) => {
   const key = normalizeKey(e.key);
+
+  if (e.key === 'a') {
+    // a 키에서 손을 뗐을 때 기본 정지 이미지로 전환
+    setCharacterAnimation(false);
+    return;
+  }
+
   pressedKeys.delete(key);
   if (pressedKeys.size === 0) stopMoving();
 });
+
 
 function startMoving() {
   if (moveAnimationFrame !== null) return;

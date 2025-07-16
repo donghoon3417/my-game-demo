@@ -80,8 +80,8 @@ body {
   }
 
     #game-area {
-    width: 90vw;
-    height: 60vh; /* 👉 모바일은 고정 높이 사용 */
+    width: 85vw;
+    height: 55vh; /* 👉 모바일은 고정 높이 사용 */
     aspect-ratio: auto;
 }
 

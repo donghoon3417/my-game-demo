@@ -56,8 +56,13 @@ function updateCharacterPosition(x, y) {
   const ratioX = centerX / gameArea.clientWidth;
   const ratioY = centerY / gameArea.clientHeight;
 
-  socket.emit('drag', { x: ratioX, y: ratioY, direction: currentDirection });
-}
+socket.emit('drag', {
+  x: ratioX,
+  y: ratioY,
+  direction: currentDirection,
+  dragging: isDragging  // 👈 드래그 상태 추가
+});
+
 
 function normalizeKey(key) {
   const map = {
@@ -240,14 +245,16 @@ socket.on('position', (pos) => {
 
   updateCharacterFromServer(safeX, safeY);
 
-  // ✅ 드래그 중이 아닐 때만 애니메이션 적용
-  if (!isDragging) {
+  // ✅ 상대가 드래그 중이면 정지 이미지
+  if (pos.dragging) {
+    setCharacterAnimation(false);
+  } else {
     setCharacterAnimation(true);
-
     clearTimeout(window.animTimeout);
     window.animTimeout = setTimeout(() => {
       setCharacterAnimation(false);
     }, 200);
   }
 });
+
 

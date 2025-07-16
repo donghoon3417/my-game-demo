@@ -168,10 +168,14 @@ function moveLoop() {
   if (pressedKeys.has('ArrowUp')) dy -= 1;
   if (pressedKeys.has('ArrowDown')) dy += 1;
 
-  if (dx !== 0 || dy !== 0) {
+  if (pressedKeys.has('a')) {
+    setCharacterAnimation(true, './images/anim12.gif');
+  }
+
+  if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
     const length = Math.sqrt(dx * dx + dy * dy);
-    dx = (dx / length) * speed;
-    dy = (dy / length) * speed;
+    dx = (dx / length || 0) * speed;
+    dy = (dy / length || 0) * speed;
 
     let newX = characterX + dx;
     let newY = characterY + dy;
@@ -235,6 +239,7 @@ buttons.forEach(button => {
   const release = () => {
     pressedKeys.delete(key);
     if (key === 'a') {
+      pressedKeys.delete('a');  // ← 추가
       setCharacterAnimation(false);
 
       const centerX = characterX + character.clientWidth / 2;

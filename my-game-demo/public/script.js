@@ -170,6 +170,19 @@ function moveLoop() {
 
   if (pressedKeys.has('a')) {
     setCharacterAnimation(true, './images/anim12.gif');
+
+    const centerX = characterX + character.clientWidth / 2;
+    const centerY = characterY + character.clientHeight / 2;
+    const ratioX = centerX / gameArea.clientWidth;
+    const ratioY = centerY / gameArea.clientHeight;
+
+    socket.emit('drag', {
+      x: ratioX,
+      y: ratioY,
+      direction: currentDirection,
+      dragging: isDragging,
+      anim: './images/anim12.gif'
+    });
   }
 
   if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {

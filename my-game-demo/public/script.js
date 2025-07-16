@@ -73,12 +73,13 @@ function updateCharacterPosition(x, y) {
 } // ← 이 중괄호가 현재 코드에 빠져 있음!
 
 function normalizeKey(key) {
-  const map = {
-    'Up': 'ArrowUp',
-    'Down': 'ArrowDown',
-    'Left': 'ArrowLeft',
-    'Right': 'ArrowRight'
-  };
+const keyMap = {
+  '↑': 'ArrowUp',
+  '↓': 'ArrowDown',
+  '←': 'ArrowLeft',
+  '→': 'ArrowRight',
+  'A': 'a'  // ✅ A 버튼도 키처럼 취급
+};
   return map[key] || key;
 }
 
@@ -179,18 +180,29 @@ buttons.forEach(button => {
   const key = keyMap[button.textContent];
   if (!key) return;
 
-  const press = () => {
-    pressedKeys.add(key);
-    if (key === 'ArrowLeft') currentDirection = 'left';
-    if (key === 'ArrowRight') currentDirection = 'right';
+const press = () => {
+  pressedKeys.add(key);
+
+  if (key === 'ArrowLeft') currentDirection = 'left';
+  if (key === 'ArrowRight') currentDirection = 'right';
+
+  if (key === 'a') {
+    setCharacterAnimation(true, './images/anim12.gif');
+  } else {
     setCharacterAnimation(true);
     startMoving();
-  };
+  }
+};
 
-  const release = () => {
-    pressedKeys.delete(key);
-    if (pressedKeys.size === 0) stopMoving();
-  };
+const release = () => {
+  pressedKeys.delete(key);
+
+  if (key === 'a') {
+    setCharacterAnimation(false);
+  }
+
+  if (pressedKeys.size === 0) stopMoving();
+};
 
   button.addEventListener('mousedown', press);
   button.addEventListener('mouseup', release);

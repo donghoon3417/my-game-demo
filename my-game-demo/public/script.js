@@ -44,7 +44,12 @@ function updateCharacterPosition(x, y) {
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
 
-  setCharacterAnimation(true);
+  // ✅ 드래그 중일 땐 정지 이미지
+  if (!isDragging) {
+    setCharacterAnimation(true);
+  } else {
+    setCharacterAnimation(false);
+  }
 
   const centerX = x + character.clientWidth / 2;
   const centerY = y + character.clientHeight / 2;

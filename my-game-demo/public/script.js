@@ -245,16 +245,19 @@ socket.on('position', (pos) => {
 
   updateCharacterFromServer(safeX, safeY);
 
-  // ✅ 상대가 드래그 중이면 정지 이미지
-  if (pos.dragging) {
-    setCharacterAnimation(false);
-  } else {
-    setCharacterAnimation(true);
-    clearTimeout(window.animTimeout);
-    window.animTimeout = setTimeout(() => {
-      setCharacterAnimation(false);
-    }, 200);
+  // ✅ 내가 드래그 중이면 상대의 애니메이션 정보 무시
+  if (!isDragging) {
+    if (pos.dragging) {
+      setCharacterAnimation(false); // 상대가 드래그 중이면 정지 이미지
+    } else {
+      setCharacterAnimation(true); // 상대가 이동 중이면 anim11.gif
+      clearTimeout(window.animTimeout);
+      window.animTimeout = setTimeout(() => {
+        setCharacterAnimation(false);
+      }, 200);
+    }
   }
 });
+
 
 

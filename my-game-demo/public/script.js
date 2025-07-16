@@ -201,6 +201,34 @@ document.addEventListener('touchend', () => {
   isDragging = false;
 });
 
+// -----------------------------
+// 🖱️ 데스크탑 마우스 드래그
+// -----------------------------
+character.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  offsetX = e.clientX - character.offsetLeft;
+  offsetY = e.clientY - character.offsetTop;
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    let x = e.clientX - offsetX;
+    let y = e.clientY - offsetY;
+
+    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
+    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+
+    setCharacterAnimation(false); // 정지 상태 이미지
+    updateCharacterPosition(x, y);
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+});
+
+
 socket.on('position', (pos) => {
   if (pos.direction) currentDirection = pos.direction;
 

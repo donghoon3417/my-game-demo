@@ -16,13 +16,17 @@ const speed = isMobile ? 5 : 10;
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
 
+let currentAnim = './images/anim1.gif'; // 초기값
+
 function setCharacterAnimation(running, overrideAnim = null) {
   if (overrideAnim) {
+    currentAnim = overrideAnim;
     character.style.backgroundImage = `url('${overrideAnim}')`;
   } else {
-    character.style.backgroundImage = running
-      ? "url('./images/anim11.gif')"
-      : "url('./images/anim1.gif')";
+    currentAnim = running
+      ? './images/anim11.gif'
+      : './images/anim1.gif';
+    character.style.backgroundImage = `url('${currentAnim}')`;
   }
 
   if (currentDirection === 'left') {
@@ -58,13 +62,14 @@ function updateCharacterPosition(x, y) {
   const ratioX = centerX / gameArea.clientWidth;
   const ratioY = centerY / gameArea.clientHeight;
 
+// 예: updateCharacterPosition 함수 안에서
 socket.emit('drag', {
   x: ratioX,
   y: ratioY,
   direction: currentDirection,
-  dragging: isDragging  // 👈 드래그 상태 추가
+  dragging: isDragging,
+  anim: currentAnim // 👈 현재 애니메이션 상태 전송
 });
-}
 
 function normalizeKey(key) {
   const map = {

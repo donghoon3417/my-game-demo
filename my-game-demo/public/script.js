@@ -183,10 +183,13 @@ function moveLoop() {
     newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
   }
 
+  // ✅ 이 부분 수정: a키를 누르고 있는 중이면 anim12로, 아니면 방향키에 따라 anim11
   if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
     if (pressedKeys.has('a')) {
       setCharacterAnimation(true, './images/anim12.gif');
       currentAnim = './images/anim12.gif';
+    } else {
+      setCharacterAnimation(true);  // anim11.gif
     }
 
     updateCharacterPosition(newX, newY);

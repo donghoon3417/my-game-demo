@@ -270,19 +270,29 @@ socket.on('position', (pos) => {
 
   updateCharacterFromServer(safeX, safeY);
 
-  // ✅ 내가 드래그 중이면 상대의 애니메이션 정보 무시
   if (!isDragging) {
+    if (pos.anim) {
+      character.style.backgroundImage = `url('${pos.anim}')`;  // 👈 서버로부터 받은 애니메이션
+    }
+
     if (pos.dragging) {
-      setCharacterAnimation(false); // 상대가 드래그 중이면 정지 이미지
+      setCharacterAnimation(false);
     } else {
-      setCharacterAnimation(true); // 상대가 이동 중이면 anim11.gif
       clearTimeout(window.animTimeout);
       window.animTimeout = setTimeout(() => {
         setCharacterAnimation(false);
       }, 200);
     }
+
+    // 좌우 반전도 함께 반영
+    if (pos.direction === 'left') {
+      character.style.transform = 'scaleX(1)';
+    } else if (pos.direction === 'right') {
+      character.style.transform = 'scaleX(-1)';
+    }
   }
 });
+
 
 
 

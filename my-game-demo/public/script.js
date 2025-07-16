@@ -70,6 +70,7 @@ socket.emit('drag', {
   dragging: isDragging,
   anim: currentAnim // 👈 현재 애니메이션 상태 전송
 });
+}
 
 function normalizeKey(key) {
   const map = {

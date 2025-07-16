@@ -16,21 +16,17 @@ def index():
 def serve_file(path):
     return send_from_directory('public', path)
 
+position = {'x': 0.1, 'y': 0.1, 'direction': 'left', 'anim': './images/anim1.gif'}
+
 @socketio.on('drag')
 def handle_drag(data):
     global position
     position['x'] = data['x']
     position['y'] = data['y']
     position['direction'] = data.get('direction', position['direction'])
-    
-    # 👉 dragging 값도 포함해서 전달
-    emit('position', {
-        'x': position['x'],
-        'y': position['y'],
-        'direction': position['direction'],
-        'dragging': data.get('dragging', False)  # 없으면 False 처리
-    }, broadcast=True, include_self=False)
-
+    position['anim'] = data.get('anim', position['anim'])  # 👈 anim 추가
+    position['dragging'] = data.get('dragging', False)
+    emit('position', position, broadcast=True, include_self=False)
 
 @socketio.on('move')
 def handle_move(data):

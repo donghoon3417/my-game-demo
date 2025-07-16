@@ -21,7 +21,7 @@ function updateCharacterFromServer(x, y) {
   characterY = y;
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
-  
+
   if (currentDirection === 'left') {
     character.style.transform = 'scaleX(1)';
   } else if (currentDirection === 'right') {
@@ -41,7 +41,7 @@ function updateCharacterPosition(x, y) {
     character.style.transform = 'scaleX(-1)';
   }
 
-  // 캐릭터 중심 기준으로 비율 좌표 전송
+  // 캐릭터 중심 좌표 → 비율 좌표로 전송
   const ratioX = (x + character.clientWidth / 2) / gameArea.clientWidth;
   const ratioY = (y + character.clientHeight / 2) / gameArea.clientHeight;
 
@@ -113,12 +113,12 @@ function moveLoop() {
     let newX = characterX + dx;
     let newY = characterY + dy;
 
+    // 캐릭터 중심이 영역 밖으로 안 나가게 보정
     const halfW = character.clientWidth / 2;
     const halfH = character.clientHeight / 2;
 
     newX = Math.max(0 + halfW, Math.min(newX, gameArea.clientWidth - halfW));
     newY = Math.max(0 + halfH, Math.min(newY, gameArea.clientHeight - halfH));
-
 
     updateCharacterPosition(newX, newY);
   }
@@ -141,21 +141,20 @@ buttons.forEach(button => {
   const key = keyMap[button.textContent];
   if (!key) return;
 
-const press = () => {
-  pressedKeys.add(key);
+  const press = () => {
+    pressedKeys.add(key);
 
-  if (key === 'ArrowLeft') {
-    currentDirection = 'left';
-    character.style.transform = 'scaleX(1)';
-  }
-  if (key === 'ArrowRight') {
-    currentDirection = 'right';
-    character.style.transform = 'scaleX(-1)';
-  }
+    if (key === 'ArrowLeft') {
+      currentDirection = 'left';
+      character.style.transform = 'scaleX(1)';
+    }
+    if (key === 'ArrowRight') {
+      currentDirection = 'right';
+      character.style.transform = 'scaleX(-1)';
+    }
 
-  startMoving();
-};
-
+    startMoving();
+  };
 
   const release = () => {
     pressedKeys.delete(key);
@@ -200,18 +199,22 @@ document.addEventListener('touchend', () => {
   isDragging = false;
 });
 
+// 📡 서버에서 좌표 수신
 socket.on('position', (pos) => {
   if (pos.direction) {
     currentDirection = pos.direction;
   }
 
-  // 캐릭터 중심 좌표 → 좌상단 좌표로 변환
-  const x = pos.x * gameArea.clientWidth - character.clientWidth / 2;
-  const y = pos.y * gameArea.clientHeight - character.clientHeight / 2;
+  // 비율 좌표를 중심 기준으로 환산
+  const centerX = pos.x * gameArea.clientWidth;
+  const centerY = pos.y * gameArea.clientHeight;
 
-  updateCharacterFromServer(x, y);
+  const x = centerX - character.clientWidth / 2;
+  const y = centerY - character.clientHeight / 2;
+
+  // 보정: 완전히 벗어나는 것 방지
+  const safeX = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
+  const safeY = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+
+  updateCharacterFromServer(safeX, safeY);
 });
-
-
-
-

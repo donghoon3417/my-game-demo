@@ -28,7 +28,7 @@ body {
   position: absolute;
   width: 14%;
   height: 18%;
-  background-image: url("images/anim1.gif");
+  background-image: url("./images/anim1.gif");
   background-size: contain; /* ✅ 이미지 비율 유지하며 짤림 방지 */
   background-position: center;
   background-repeat: no-repeat;

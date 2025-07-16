@@ -41,13 +41,12 @@ function updateCharacterPosition(x, y) {
     character.style.transform = 'scaleX(-1)';
   }
 
-  // 👉 비율 좌표로 전송
-  const ratioX = x / gameArea.clientWidth;
-  const ratioY = y / gameArea.clientHeight;
+  // 캐릭터 중심 기준으로 비율 좌표 전송
+  const ratioX = (x + character.clientWidth / 2) / gameArea.clientWidth;
+  const ratioY = (y + character.clientHeight / 2) / gameArea.clientHeight;
 
   socket.emit('drag', { x: ratioX, y: ratioY, direction: currentDirection });
 }
-
 
 function normalizeKey(key) {
   const map = {
@@ -202,12 +201,13 @@ socket.on('position', (pos) => {
     currentDirection = pos.direction;
   }
 
-  // 👉 비율 좌표를 화면 크기로 변환
-  const x = pos.x * gameArea.clientWidth;
-  const y = pos.y * gameArea.clientHeight;
+  // 캐릭터 중심 좌표 → 좌상단 좌표로 변환
+  const x = pos.x * gameArea.clientWidth - character.clientWidth / 2;
+  const y = pos.y * gameArea.clientHeight - character.clientHeight / 2;
 
   updateCharacterFromServer(x, y);
 });
+
 
 
 

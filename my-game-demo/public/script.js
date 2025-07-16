@@ -245,7 +245,7 @@ buttons.forEach(button => {
     setCharacterAnimation(true);
     startMoving();
   }
-};
+  };
 
   const release = () => {
     pressedKeys.delete(key);

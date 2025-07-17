@@ -124,10 +124,14 @@ document.addEventListener('keydown', (e) => {
 
 document.addEventListener('keyup', (e) => {
   const key = normalizeKey(e.key);
+  pressedKeys.delete(key);
 
-  if (e.key === 'a') {
+  // 모든 키를 뗀 경우
+  if (pressedKeys.size === 0) {
+    stopMoving();
     setCharacterAnimation(false);
 
+    // ✅ 서버에 애니메이션, 방향, 위치 전송
     const centerX = characterX + character.clientWidth / 2;
     const centerY = characterY + character.clientHeight / 2;
     const ratioX = centerX / gameArea.clientWidth;
@@ -137,18 +141,12 @@ document.addEventListener('keyup', (e) => {
       x: ratioX,
       y: ratioY,
       direction: currentDirection,
-      dragging: isDragging,
-      anim: './images/anim1.gif'
+      dragging: false,
+      anim: './images/anim1.gif'  // 정지 애니메이션
     });
-
-    pressedKeys.delete('a');
-    if (pressedKeys.size === 0) stopMoving();
-    return;
   }
-
-  pressedKeys.delete(key);
-  if (pressedKeys.size === 0) stopMoving();
 });
+
 
 function startMoving() {
   if (moveAnimationFrame !== null) return;
@@ -341,31 +339,39 @@ socket.on('position', (pos) => {
 
   const centerX = pos.x * gameArea.clientWidth;
   const centerY = pos.y * gameArea.clientHeight;
+
   const x = centerX - character.clientWidth / 2;
   const y = centerY - character.clientHeight / 2;
+
+  // ✅ 위치 오버플로 방지
   const safeX = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
   const safeY = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
 
-  updateCharacterFromServer(safeX, safeY);
+  // ✅ 위치만 갱신 (애니메이션은 아래에서)
+  characterX = safeX;
+  characterY = safeY;
+  character.style.left = `${safeX}px`;
+  character.style.top = `${safeY}px`;
 
   if (!isDragging) {
+    // ✅ 애니메이션 상태 적용
     if (pos.anim) {
+      currentAnim = pos.anim; // 현재 애니메이션 동기화
       character.style.backgroundImage = `url('${pos.anim}')`;
-    }
-
-    if (pos.dragging) {
-      setCharacterAnimation(false);
-    } else {
-      clearTimeout(window.animTimeout);
-      window.animTimeout = setTimeout(() => {
-        setCharacterAnimation(false);
-      }, 200);
     }
 
     if (pos.direction === 'left') {
       character.style.transform = 'scaleX(1)';
     } else if (pos.direction === 'right') {
       character.style.transform = 'scaleX(-1)';
+    }
+
+    // ✅ 멈춘 경우 애니메이션 잠깐 유지 후 끄기
+    if (!pos.dragging) {
+      clearTimeout(window.animTimeout);
+      window.animTimeout = setTimeout(() => {
+        setCharacterAnimation(false);
+      }, 200);
     }
   }
 });

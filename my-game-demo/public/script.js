@@ -310,10 +310,10 @@ document.addEventListener('touchmove', (e) => {
 
 document.addEventListener('touchend', () => {
   isDragging = false;
+  pressedKeys.clear(); // ✅ 추가: 모든 키 입력 초기화
   stopMoving();             
   setCharacterAnimation(false);
 
-  // ✅ 멈춘 위치를 서버로 전송 (중요!)
   const centerX = (character.offsetLeft + character.clientWidth / 2) / gameArea.clientWidth;
   const centerY = (character.offsetTop + character.clientHeight / 2) / gameArea.clientHeight;
 
@@ -321,8 +321,8 @@ document.addEventListener('touchend', () => {
     x: centerX,
     y: centerY,
     direction: currentDirection,
-    anim: 'anim1.gif',      // 걷기 끝난 후 이미지
-    dragging: false         // 멈췄음을 알림
+    anim: 'anim1.gif',
+    dragging: false
   });
 });
 

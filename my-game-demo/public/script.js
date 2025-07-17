@@ -310,10 +310,21 @@ document.addEventListener('touchmove', (e) => {
 
 document.addEventListener('touchend', () => {
   isDragging = false;
-  stopMoving();             // 👉 이동 루프 정지
-  setCharacterAnimation(false);  // 👉 걷기 애니메이션 중단
-});
+  stopMoving();             
+  setCharacterAnimation(false);
 
+  // ✅ 멈춘 위치를 서버로 전송 (중요!)
+  const centerX = (character.offsetLeft + character.clientWidth / 2) / gameArea.clientWidth;
+  const centerY = (character.offsetTop + character.clientHeight / 2) / gameArea.clientHeight;
+
+  socket.emit('drag', {
+    x: centerX,
+    y: centerY,
+    direction: currentDirection,
+    anim: 'anim1.gif',      // 걷기 끝난 후 이미지
+    dragging: false         // 멈췄음을 알림
+  });
+});
 
 character.addEventListener('mousedown', (e) => {
   isDragging = true;

@@ -147,7 +147,25 @@ document.addEventListener('keyup', (e) => {
   }
 
   pressedKeys.delete(key);
-  if (pressedKeys.size === 0) stopMoving();
+
+  // ✅ 여기 추가
+  if (pressedKeys.size === 0) {
+    stopMoving();
+    setCharacterAnimation(false);
+
+    const centerX = characterX + character.clientWidth / 2;
+    const centerY = characterY + character.clientHeight / 2;
+    const ratioX = centerX / gameArea.clientWidth;
+    const ratioY = centerY / gameArea.clientHeight;
+
+    socket.emit('drag', {
+      x: ratioX,
+      y: ratioY,
+      direction: currentDirection,
+      dragging: false,
+      anim: './images/anim1.gif' // ← 이게 중요!
+    });
+  }
 });
 
 function startMoving() {

@@ -310,7 +310,10 @@ document.addEventListener('touchmove', (e) => {
 
 document.addEventListener('touchend', () => {
   isDragging = false;
+  stopMoving();             // 👉 이동 루프 정지
+  setCharacterAnimation(false);  // 👉 걷기 애니메이션 중단
 });
+
 
 character.addEventListener('mousedown', (e) => {
   isDragging = true;

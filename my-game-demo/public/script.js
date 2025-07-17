@@ -19,31 +19,11 @@ let moveAnimationFrame = null;
 let currentAnim = './images/anim1.gif';
 
 function setCharacterAnimation(running, overrideAnim = null) {
-  let newAnim;
-  if (overrideAnim) {
-    newAnim = overrideAnim;
-  } else {
-    newAnim = running ? './images/anim11.gif' : './images/anim1.gif';
-  }
-
-  if (newAnim === currentAnim) return; // ✅ 중복 설정 방지
-
+  let newAnim = overrideAnim || (running ? './images/anim11.gif' : './images/anim1.gif');
+  if (newAnim === currentAnim) return;
   currentAnim = newAnim;
   character.style.backgroundImage = `url('${newAnim}')`;
-
-  if (currentDirection === 'left') {
-    character.style.transform = 'scaleX(1)';
-  } else if (currentDirection === 'right') {
-    character.style.transform = 'scaleX(-1)';
-  }
-}
-
-function updateCharacterFromServer(x, y) {
-  characterX = x;
-  characterY = y;
-  character.style.left = `${x}px`;
-  character.style.top = `${y}px`;
-  setCharacterAnimation(false);
+  character.style.transform = currentDirection === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
 }
 
 function updateCharacterPosition(x, y) {
@@ -52,8 +32,6 @@ function updateCharacterPosition(x, y) {
   character.style.left = `${x}px`;
   character.style.top = `${y}px`;
 
-  // ❌ 여기서 setCharacterAnimation 호출 제거!
-  // 애니메이션 설정은 moveLoop나 key handler에서만 하도록
   const centerX = x + character.clientWidth / 2;
   const centerY = y + character.clientHeight / 2;
   const ratioX = centerX / gameArea.clientWidth;
@@ -68,15 +46,13 @@ function updateCharacterPosition(x, y) {
   });
 }
 
-
 function normalizeKey(key) {
-  const map = {
+  return ({
     'Up': 'ArrowUp',
     'Down': 'ArrowDown',
     'Left': 'ArrowLeft',
     'Right': 'ArrowRight'
-  };
-  return map[key] || key;
+  })[key] || key;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -84,69 +60,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const parentRect = gameArea.getBoundingClientRect();
   characterX = rect.left - parentRect.left;
   characterY = rect.top - parentRect.top;
-  updateCharacterFromServer(characterX, characterY);
+  updateCharacterPosition(characterX, characterY);
 });
 
 document.addEventListener('keydown', (e) => {
   const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Left', 'Right', 'Up', 'Down', 'a'];
-  if (validKeys.includes(e.key)) {
-    const key = normalizeKey(e.key);
+  if (!validKeys.includes(e.key)) return;
 
-    if (e.key === 'a') {
-      setCharacterAnimation(true, './images/anim12.gif');
+  const key = normalizeKey(e.key);
+  pressedKeys.add(key);
 
-      const centerX = characterX + character.clientWidth / 2;
-      const centerY = characterY + character.clientHeight / 2;
-      const ratioX = centerX / gameArea.clientWidth;
-      const ratioY = centerY / gameArea.clientHeight;
+  if (key === 'ArrowLeft') currentDirection = 'left';
+  if (key === 'ArrowRight') currentDirection = 'right';
 
-      socket.emit('drag', {
-        x: ratioX,
-        y: ratioY,
-        direction: currentDirection,
-        dragging: isDragging,
-        anim: './images/anim12.gif'
-      });
-
-      pressedKeys.add('a');
-      startMoving();
-      return;
-    }
-
-    pressedKeys.add(key);
-    if (key === 'ArrowLeft') currentDirection = 'left';
-    if (key === 'ArrowRight') currentDirection = 'right';
-
-    setCharacterAnimation(true);
+  if (key === 'a') {
+    setCharacterAnimation(true, './images/anim12.gif');
+    socket.emit('drag', {
+      x: (characterX + character.clientWidth / 2) / gameArea.clientWidth,
+      y: (characterY + character.clientHeight / 2) / gameArea.clientHeight,
+      direction: currentDirection,
+      dragging: isDragging,
+      anim: './images/anim12.gif'
+    });
     startMoving();
+    return;
   }
+
+  setCharacterAnimation(true);
+  startMoving();
 });
 
 document.addEventListener('keyup', (e) => {
   const key = normalizeKey(e.key);
   pressedKeys.delete(key);
 
-  // 모든 키를 뗀 경우
   if (pressedKeys.size === 0) {
     stopMoving();
     setCharacterAnimation(false);
-
-    // ✅ 서버에 애니메이션, 방향, 위치 전송
-    const centerX = characterX + character.clientWidth / 2;
-    const centerY = characterY + character.clientHeight / 2;
-    const ratioX = centerX / gameArea.clientWidth;
-    const ratioY = centerY / gameArea.clientHeight;
-
     socket.emit('drag', {
-      x: ratioX,
-      y: ratioY,
+      x: (characterX + character.clientWidth / 2) / gameArea.clientWidth,
+      y: (characterY + character.clientHeight / 2) / gameArea.clientHeight,
       direction: currentDirection,
       dragging: false,
-      anim: './images/anim1.gif'  // 정지 애니메이션
+      anim: './images/anim1.gif'
     });
   }
 });
-
 
 function startMoving() {
   if (moveAnimationFrame !== null) return;
@@ -159,44 +118,31 @@ function moveLoop() {
     return;
   }
 
-  let dx = 0;
-  let dy = 0;
-
+  let dx = 0, dy = 0;
   if (pressedKeys.has('ArrowLeft')) dx -= 1;
   if (pressedKeys.has('ArrowRight')) dx += 1;
   if (pressedKeys.has('ArrowUp')) dy -= 1;
   if (pressedKeys.has('ArrowDown')) dy += 1;
 
-  let newX = characterX;
-  let newY = characterY;
-
+  let newX = characterX, newY = characterY;
   if (dx !== 0 || dy !== 0) {
     const length = Math.sqrt(dx * dx + dy * dy);
     dx = (dx / length || 0) * speed;
     dy = (dy / length || 0) * speed;
 
-    newX = characterX + dx;
-    newY = characterY + dy;
-
-    newX = Math.max(0, Math.min(newX, gameArea.clientWidth - character.clientWidth));
-    newY = Math.max(0, Math.min(newY, gameArea.clientHeight - character.clientHeight));
+    newX = Math.max(0, Math.min(characterX + dx, gameArea.clientWidth - character.clientWidth));
+    newY = Math.max(0, Math.min(characterY + dy, gameArea.clientHeight - character.clientHeight));
   }
 
-  // ✅ 조건 분기 정리
-if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
-  if (pressedKeys.has('a')) {
-    // 현재 anim12가 아니라면 다시 설정
-    if (currentAnim !== './images/anim12.gif') {
-      setCharacterAnimation(true, './images/anim12.gif');
+  if (dx !== 0 || dy !== 0 || pressedKeys.has('a')) {
+    if (pressedKeys.has('a')) {
+      if (currentAnim !== './images/anim12.gif') setCharacterAnimation(true, './images/anim12.gif');
+    } else {
+      if (currentAnim !== './images/anim11.gif') setCharacterAnimation(true, './images/anim11.gif');
     }
-  } else {
-    // a가 눌리지 않았을 때만 anim11로 설정
-    if (currentAnim !== './images/anim11.gif') {
-      setCharacterAnimation(true, './images/anim11.gif');
-    }
+    updateCharacterPosition(newX, newY);
   }
-  updateCharacterPosition(newX, newY);
-}
+
   moveAnimationFrame = requestAnimationFrame(moveLoop);
 }
 
@@ -208,14 +154,9 @@ function stopMoving() {
   setCharacterAnimation(false);
 }
 
+// 버튼 조작 처리
 const buttons = document.querySelectorAll('#buttons button');
-const keyMap = {
-  '↑': 'ArrowUp',
-  '↓': 'ArrowDown',
-  '←': 'ArrowLeft',
-  '→': 'ArrowRight',
-  'A': 'a'
-};
+const keyMap = { '↑': 'ArrowUp', '↓': 'ArrowDown', '←': 'ArrowLeft', '→': 'ArrowRight', 'A': 'a' };
 
 buttons.forEach(button => {
   const key = keyMap[button.textContent];
@@ -229,144 +170,95 @@ buttons.forEach(button => {
     if (key === 'a') {
       setCharacterAnimation(true, './images/anim12.gif');
       currentAnim = './images/anim12.gif';
-
-      const centerX = characterX + character.clientWidth / 2;
-      const centerY = characterY + character.clientHeight / 2;
-      const ratioX = centerX / gameArea.clientWidth;
-      const ratioY = centerY / gameArea.clientHeight;
-
       socket.emit('drag', {
-        x: ratioX,
-        y: ratioY,
+        x: (characterX + character.clientWidth / 2) / gameArea.clientWidth,
+        y: (characterY + character.clientHeight / 2) / gameArea.clientHeight,
         direction: currentDirection,
         dragging: isDragging,
         anim: './images/anim12.gif'
       });
-
-      startMoving(); // ✅ 중요
     } else {
       setCharacterAnimation(true);
-      startMoving();
     }
+    startMoving();
   };
 
   const release = () => {
     pressedKeys.delete(key);
     if (key === 'a') {
       setCharacterAnimation(false);
-
-      const centerX = characterX + character.clientWidth / 2;
-      const centerY = characterY + character.clientHeight / 2;
-      const ratioX = centerX / gameArea.clientWidth;
-      const ratioY = centerY / gameArea.clientHeight;
-
       socket.emit('drag', {
-        x: ratioX,
-        y: ratioY,
+        x: (characterX + character.clientWidth / 2) / gameArea.clientWidth,
+        y: (characterY + character.clientHeight / 2) / gameArea.clientHeight,
         direction: currentDirection,
         dragging: isDragging,
         anim: './images/anim1.gif'
       });
     }
-
     if (pressedKeys.size === 0) stopMoving();
   };
 
   button.addEventListener('mousedown', press);
   button.addEventListener('mouseup', release);
   button.addEventListener('mouseleave', release);
-
-  button.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    press();
-  }, { passive: false });
-
+  button.addEventListener('touchstart', e => { e.preventDefault(); press(); }, { passive: false });
   button.addEventListener('touchend', release);
 });
 
-character.addEventListener('touchstart', (e) => {
+// 드래그 이벤트 (데스크탑/모바일 공통)
+function handleDragStart(e, isTouch = false) {
   isDragging = true;
-  const touch = e.touches[0];
-  offsetX = touch.clientX - character.offsetLeft;
-  offsetY = touch.clientY - character.offsetTop;
+  const point = isTouch ? e.touches[0] : e;
+  offsetX = point.clientX - character.offsetLeft;
+  offsetY = point.clientY - character.offsetTop;
   e.preventDefault();
-}, { passive: false });
+}
 
-document.addEventListener('touchmove', (e) => {
-  if (isDragging) {
-    const touch = e.touches[0];
-    let x = touch.clientX - offsetX;
-    let y = touch.clientY - offsetY;
+function handleDragMove(e, isTouch = false) {
+  if (!isDragging) return;
+  const point = isTouch ? e.touches[0] : e;
+  let x = point.clientX - offsetX;
+  let y = point.clientY - offsetY;
+  x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
+  y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
+  setCharacterAnimation(false);
+  updateCharacterPosition(x, y);
+}
 
-    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
-    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
-
-    setCharacterAnimation(false);
-    updateCharacterPosition(x, y);
-  }
-}, { passive: false });
-
-document.addEventListener('touchend', () => {
+function handleDragEnd() {
   isDragging = false;
-});
+}
 
-character.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  offsetX = e.clientX - character.offsetLeft;
-  offsetY = e.clientY - character.offsetTop;
-  e.preventDefault();
-});
+character.addEventListener('mousedown', e => handleDragStart(e));
+document.addEventListener('mousemove', e => handleDragMove(e));
+document.addEventListener('mouseup', handleDragEnd);
 
-document.addEventListener('mousemove', (e) => {
-  if (isDragging) {
-    let x = e.clientX - offsetX;
-    let y = e.clientY - offsetY;
+character.addEventListener('touchstart', e => handleDragStart(e, true), { passive: false });
+document.addEventListener('touchmove', e => handleDragMove(e, true), { passive: false });
+document.addEventListener('touchend', handleDragEnd);
 
-    x = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
-    y = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
-
-    setCharacterAnimation(false);
-    updateCharacterPosition(x, y);
-  }
-});
-
-document.addEventListener('mouseup', () => {
-  isDragging = false;
-});
-
+// 서버로부터 위치 수신
 socket.on('position', (pos) => {
-  if (pos.direction) currentDirection = pos.direction;
+  // 👉 조작 중이면 위치 업데이트 무시 (중요!)
+  if (isDragging || pressedKeys.size > 0) return;
 
   const centerX = pos.x * gameArea.clientWidth;
   const centerY = pos.y * gameArea.clientHeight;
+  const x = Math.max(0, Math.min(centerX - character.clientWidth / 2, gameArea.clientWidth - character.clientWidth));
+  const y = Math.max(0, Math.min(centerY - character.clientHeight / 2, gameArea.clientHeight - character.clientHeight));
 
-  const x = centerX - character.clientWidth / 2;
-  const y = centerY - character.clientHeight / 2;
-
-  // ✅ 위치 오버플로 방지
-  const safeX = Math.max(0, Math.min(x, gameArea.clientWidth - character.clientWidth));
-  const safeY = Math.max(0, Math.min(y, gameArea.clientHeight - character.clientHeight));
-
-  // ✅ 위치만 갱신 (애니메이션은 아래에서)
-  characterX = safeX;
-  characterY = safeY;
-  character.style.left = `${safeX}px`;
-  character.style.top = `${safeY}px`;
+  characterX = x;
+  characterY = y;
+  character.style.left = `${x}px`;
+  character.style.top = `${y}px`;
 
   if (!isDragging) {
-    // ✅ 애니메이션 상태 적용
     if (pos.anim) {
-      currentAnim = pos.anim; // 현재 애니메이션 동기화
+      currentAnim = pos.anim;
       character.style.backgroundImage = `url('${pos.anim}')`;
     }
+    character.style.transform = pos.direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
 
-    if (pos.direction === 'left') {
-      character.style.transform = 'scaleX(1)';
-    } else if (pos.direction === 'right') {
-      character.style.transform = 'scaleX(-1)';
-    }
-
-    // ✅ 멈춘 경우 애니메이션 잠깐 유지 후 끄기
     if (!pos.dragging) {
       clearTimeout(window.animTimeout);
       window.animTimeout = setTimeout(() => {

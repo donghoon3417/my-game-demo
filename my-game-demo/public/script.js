@@ -239,7 +239,6 @@ document.addEventListener('touchend', handleDragEnd);
 
 // 서버로부터 위치 수신
 socket.on('position', (pos) => {
-  // 👉 조작 중이면 위치 업데이트 무시 (중요!)
   if (isDragging || pressedKeys.size > 0) return;
 
   const centerX = pos.x * gameArea.clientWidth;
@@ -253,11 +252,16 @@ socket.on('position', (pos) => {
   character.style.top = `${y}px`;
 
   if (!isDragging) {
+    if (pos.direction) {
+      currentDirection = pos.direction; // ✅ 방향 상태 유지
+    }
+
     if (pos.anim) {
       currentAnim = pos.anim;
       character.style.backgroundImage = `url('${pos.anim}')`;
     }
-    character.style.transform = pos.direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
+
+    character.style.transform = currentDirection === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
 
     if (!pos.dragging) {
       clearTimeout(window.animTimeout);
@@ -267,3 +271,4 @@ socket.on('position', (pos) => {
     }
   }
 });
+

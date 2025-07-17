@@ -1,24 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>캐릭터 이동 데모</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Canvas 캐릭터 이동</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div id="game-area">
-    <div id="character" style="background-image: url('./images/anim1.gif')"></div>
+  <div id="game-container">
+    <canvas id="game-canvas" width="500" height="400"></canvas>
+    <div id="buttons">
+      <button>↑</button>
+      <button>↓</button>
+      <button>←</button>
+      <button>→</button>
+      <button>A</button>
+    </div>
   </div>
-
-  <div id="buttons">
-    <button>↑</button>
-    <button>←</button>
-    <button>↓</button>
-    <button>→</button>
-     <button>A</button>
-  </div>
-
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="script.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/static/game.js"></script>
 </body>
 </html>

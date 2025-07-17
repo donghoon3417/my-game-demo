@@ -1,4 +1,0 @@
-flask
-flask-socketio
-# requirements.txt에 추가
-eventlet

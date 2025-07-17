@@ -7,7 +7,7 @@ canvas.width = 500;
 canvas.height = 400;
 
 const sprite = new Image();
-sprite.src = './images/anim1_frame.png'; // 실제 경로 확인 필요
+sprite.src = '/images/anim1_frame.png';// 실제 경로 확인 필요
 
 let frameIndex = 0;
 let tickCount = 0;

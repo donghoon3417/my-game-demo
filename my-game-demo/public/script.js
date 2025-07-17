@@ -2,8 +2,12 @@ const socket = io();
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
+// 캔버스 사이즈 설정
+canvas.width = 500;
+canvas.height = 400;
+
 const sprite = new Image();
-sprite.src = './images/anim1_frame.png'; // 프레임으로 나눈 이미지 사용
+sprite.src = './images/anim1_frame.png'; // 실제 경로 확인 필요
 
 let frameIndex = 0;
 let tickCount = 0;
@@ -55,8 +59,10 @@ function updateFrame() {
 
 function moveCharacter() {
   let dx = 0, dy = 0;
-  if (keys.has('ArrowLeft')) dx -= speed;
-  if (keys.has('ArrowRight')) dx += speed;
+
+  // ❗ 좌우 반전 처리
+  if (keys.has('ArrowLeft')) dx += speed;   // 왼쪽 키 누르면 오른쪽으로
+  if (keys.has('ArrowRight')) dx -= speed;  // 오른쪽 키 누르면 왼쪽으로
   if (keys.has('ArrowUp')) dy -= speed;
   if (keys.has('ArrowDown')) dy += speed;
 
@@ -64,8 +70,9 @@ function moveCharacter() {
     characterX = Math.max(0, Math.min(characterX + dx, canvas.width - frameWidth));
     characterY = Math.max(0, Math.min(characterY + dy, canvas.height - frameHeight));
     isMoving = true;
+    
+    if (dx > 0) currentDirection = 'right'; // 반대 처리
     if (dx < 0) currentDirection = 'left';
-    if (dx > 0) currentDirection = 'right';
 
     socket.emit('drag', {
       x: (characterX + frameWidth / 2) / canvas.width,
@@ -83,15 +90,18 @@ function loop() {
   drawFrame();
   requestAnimationFrame(loop);
 }
+
 sprite.onload = loop;
 
 document.addEventListener('keydown', (e) => keys.add(e.key));
 document.addEventListener('keyup', (e) => keys.delete(e.key));
 
+// ❗ 모바일이나 타 클라이언트에서도 실시간 반영
 socket.on('position', (data) => {
   const x = data.x * canvas.width - frameWidth / 2;
   const y = data.y * canvas.height - frameHeight / 2;
   characterX = x;
   characterY = y;
   currentDirection = data.direction || 'right';
+  drawFrame(); // 실시간 반영
 });

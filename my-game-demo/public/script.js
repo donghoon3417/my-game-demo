@@ -79,16 +79,38 @@ function appendMessage(text) {
 }
 
 // 말풍선 표시
+let bubbleTrackingId = null;
+
+// 말풍선 표시
 function showBubble(text) {
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
-  updateBubblePosition();
+
+  const update = () => {
+    const charRect = state.character.getBoundingClientRect();
+    const gameRect = state.gameArea.getBoundingClientRect();
+    const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
+    const bubbleY = charRect.top - gameRect.top;
+
+    state.bubble.style.left = `${bubbleX}px`;
+    state.bubble.style.top = `${bubbleY - 10}px`;
+    state.bubble.style.transform = 'translateX(-50%)' ;
+
+    bubbleTrackingId = requestAnimationFrame(update);
+  };
+
+  update(); // 최초 호출로 시작
 
   clearTimeout(state.bubbleTimeout);
   state.bubbleTimeout = setTimeout(() => {
     state.bubble.style.display = 'none';
+    if (bubbleTrackingId) {
+      cancelAnimationFrame(bubbleTrackingId);
+      bubbleTrackingId = null;
+    }
   }, 30000);
 }
+
 
 // 전송 버튼 클릭 시
 state.sendBtn.addEventListener('click', async () => {

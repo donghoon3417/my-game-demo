@@ -26,8 +26,10 @@ export const state = {
   currentAnim: './images/anim1.gif',
   speed: window.innerWidth <= 600 ? 5 : 10,
   pressedKeys: new Set(),
-  moveAnimationFrame: null
+  moveAnimationFrame: null,
+  bubbleTimeout: null    // ✅ 이 줄 추가
 };
+
 
 function appendMessage(text) {
   const div = document.createElement('div');

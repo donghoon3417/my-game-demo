@@ -1,6 +1,6 @@
 export function setupButtonControls(state) {
   const moveStep = 0.01;
-  let isTouch = false; // 모바일 이벤트와 데스크탑 중복 방지
+  let isTouch = false;
 
   document.querySelectorAll('#buttons button').forEach(btn => {
     const key = btn.textContent;
@@ -9,9 +9,11 @@ export function setupButtonControls(state) {
     const start = () => {
       if (['↑', '↓', '←', '→'].includes(key)) {
         state.character.style.backgroundImage = `url('./images/anim11.gif')`;
+        const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
+        const direction = dirMap[key];
+
         intervalId = setInterval(() => {
-          const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
-          const direction = dirMap[key];
+          moveCharacterLocally(direction); // ✅ 위치 이동 반영
 
           const posX = parseFloat(state.character.style.left) || 0;
           const posY = parseFloat(state.character.style.top) || 0;
@@ -67,17 +69,17 @@ export function setupButtonControls(state) {
       }
     };
 
-    // 🖱️ 데스크탑
+    // 데스크탑
     btn.addEventListener('mousedown', () => {
-      if (isTouch) return; // 모바일 이벤트와 중복 방지
+      if (isTouch) return;
       start();
     });
     btn.addEventListener('mouseup', stop);
     btn.addEventListener('mouseleave', stop);
 
-    // 📱 모바일
+    // 모바일
     btn.addEventListener('touchstart', (e) => {
-      e.preventDefault(); // 스크롤 방지
+      e.preventDefault();
       isTouch = true;
       start();
     });
@@ -90,4 +92,23 @@ export function setupButtonControls(state) {
       isTouch = false;
     });
   });
+
+  function moveCharacterLocally(direction) {
+    const step = moveStep;
+    let posX = parseFloat(state.character.style.left) || 0;
+    let posY = parseFloat(state.character.style.top) || 0;
+
+    if (direction === 'left') posX -= step * state.gameArea.clientWidth;
+    if (direction === 'right') posX += step * state.gameArea.clientWidth;
+    if (direction === 'up') posY -= step * state.gameArea.clientHeight;
+    if (direction === 'down') posY += step * state.gameArea.clientHeight;
+
+    posX = Math.max(0, Math.min(posX, state.gameArea.clientWidth));
+    posY = Math.max(0, Math.min(posY, state.gameArea.clientHeight));
+
+    state.currentDirection = direction;
+    state.character.style.left = `${posX}px`;
+    state.character.style.top = `${posY}px`;
+    state.character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
+  }
 }

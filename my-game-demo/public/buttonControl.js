@@ -1,20 +1,19 @@
 export function setupButtonControls(state) {
-  const moveStep = 0.01; // 서버와 동일하게 맞춤
+  const moveStep = 0.01;
 
   document.querySelectorAll('#buttons button').forEach(btn => {
     const key = btn.textContent;
     let intervalId = null;
 
-    btn.addEventListener('mousedown', () => {
+    const start = () => {
       if (['↑', '↓', '←', '→'].includes(key)) {
-        state.character.style.backgroundImage = `url('./images/anim11.gif')`; // 움직이는 이미지
-
+        state.character.style.backgroundImage = `url('./images/anim11.gif')`;
         intervalId = setInterval(() => {
           moveCharacterLocally(key);
           const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
           const direction = dirMap[key];
           state.socket.emit('move', { direction, step: moveStep });
-        }, 50); // 누르고 있는 동안 50ms 간격 이동
+        }, 50);
       }
 
       if (key === 'A') {
@@ -31,23 +30,28 @@ export function setupButtonControls(state) {
           anim: './images/anim12.gif'
         });
       }
-    });
+    };
 
-    btn.addEventListener('mouseup', () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-        state.character.style.backgroundImage = `url('./images/anim1.gif')`; // 정지 이미지
-      }
-    });
-
-    btn.addEventListener('mouseleave', () => {
+    const stop = () => {
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
         state.character.style.backgroundImage = `url('./images/anim1.gif')`;
       }
+    };
+
+    // 데스크탑
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('mouseup', stop);
+    btn.addEventListener('mouseleave', stop);
+
+    // 모바일
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // 스크롤 방지
+      start();
     });
+    btn.addEventListener('touchend', stop);
+    btn.addEventListener('touchcancel', stop);
   });
 
   function moveCharacterLocally(key) {

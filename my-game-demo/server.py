@@ -1,15 +1,13 @@
 import os
+import requests
 from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
-import openai
 
-# 환경 변수에서 OpenAI API 키 가져오기
-openai.api_key = os.environ.get("OPENAI_API_KEY")
-
+# Flask 앱 및 Socket.IO 초기화
 app = Flask(__name__, static_folder='public')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# 캐릭터 위치 상태
+# 캐릭터 상태 초기값
 position = {
     'x': 0.1,
     'y': 0.1,
@@ -18,17 +16,17 @@ position = {
     'dragging': False
 }
 
-# 기본 페이지 제공
+# 루트 페이지 라우팅
 @app.route('/')
 def index():
     return send_from_directory('public', 'index.html')
 
-# 정적 파일 제공
+# 정적 파일 서빙
 @app.route('/<path:path>')
 def serve_file(path):
     return send_from_directory('public', path)
 
-# SocketIO: 드래그 처리
+# 드래그 이벤트 처리
 @socketio.on('drag')
 def handle_drag(data):
     global position
@@ -39,7 +37,7 @@ def handle_drag(data):
     position['dragging'] = data.get('dragging', False)
     emit('position', position, broadcast=True, include_self=False)
 
-# SocketIO: 이동 처리
+# 이동 이벤트 처리
 @socketio.on('move')
 def handle_move(data):
     global position
@@ -63,7 +61,7 @@ def handle_move(data):
 
         emit('position', position, broadcast=True, include_self=False)
 
-# OpenAI 챗 응답 처리
+# OpenRouter 기반 챗 응답 처리
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.get_json()
@@ -73,20 +71,28 @@ def chat():
         return jsonify({'reply': '메시지를 입력해주세요.'}), 400
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
+        headers = {
+            'Authorization': f'Bearer {os.environ.get("OPENROUTER_API_KEY")}',
+            'Content-Type': 'application/json'
+        }
+
+        payload = {
+            "model": "openai/gpt-4",  # 원하는 모델명으로 변경 가능
+            "messages": [
                 {"role": "system", "content": "너는 친절한 게임 속 캐릭터야."},
                 {"role": "user", "content": message}
-            ],
-            max_tokens=100,
-            temperature=0.8
-        )
-        reply = response['choices'][0]['message']['content'].strip()
+            ]
+        }
+
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+        response.raise_for_status()
+
+        reply = response.json()['choices'][0]['message']['content'].strip()
         return jsonify({'reply': reply})
+
     except Exception as e:
-        print(f"[ERROR] OpenAI 응답 실패: {e}")
-        return jsonify({'reply': 'AI 응답 실패: 서버 오류가 발생했습니다.'}), 500
+        print(f"[OpenRouter 오류] {e}")
+        return jsonify({'reply': 'AI 응답 실패: OpenRouter 요청 중 오류 발생'}), 500
 
 # 서버 실행
 if __name__ == '__main__':

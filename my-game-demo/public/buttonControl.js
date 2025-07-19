@@ -5,36 +5,37 @@ export function setupButtonControls(state) {
     const key = btn.textContent;
     let intervalId = null;
 
-    const start = () => {
-      if (['↑', '↓', '←', '→'].includes(key)) {
-        state.character.style.backgroundImage = `url('./images/anim11.gif')`;
-        intervalId = setInterval(() => {
-          moveCharacterLocally(key);
-          const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
-          const direction = dirMap[key];
-          state.socket.emit('move', {
-            direction,
-            step: moveStep,
-            anim: './images/anim11.gif' // ✅ 서버로 애니메이션도 전송
-          });
-        }, 50);
-      }
+ const start = () => {
+  if (['↑', '↓', '←', '→'].includes(key)) {
+    state.character.style.backgroundImage = `url('./images/anim11.gif')`;
+    intervalId = setInterval(() => {
+      moveCharacterLocally(key);
+      const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
+      const direction = dirMap[key];
+      state.socket.emit('move', {
+        direction,
+        step: moveStep,
+        anim: './images/anim11.gif'
+      });
+    }, 50);
+  }
 
-      if (key === 'A') {
-        const centerX = (state.characterX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
-        const centerY = (state.characterY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
+  if (key === 'A') {
+    const centerX = (state.characterX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
+    const centerY = (state.characterY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
 
-        state.character.style.backgroundImage = `url('./images/anim12.gif')`;
+    state.character.style.backgroundImage = `url('./images/anim12.gif')`;
 
-        state.socket.emit('drag', {
-          x: centerX,
-          y: centerY,
-          direction: state.currentDirection,
-          dragging: false,
-          anim: './images/anim12.gif'
-        });
-      }
-    };
+    state.socket.emit('drag', {
+      x: centerX,
+      y: centerY,
+      direction: state.currentDirection,
+      dragging: false,
+      anim: './images/anim12.gif'
+    });
+  }
+};
+
 
     const stop = () => {
       if (intervalId) {

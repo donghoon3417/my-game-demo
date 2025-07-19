@@ -241,90 +241,97 @@ character.addEventListener('touchstart', e => handleDragStart(e, true), { passiv
 document.addEventListener('touchmove', e => handleDragMove(e, true), { passive: false });
 document.addEventListener('touchend', handleDragEnd);
 
-// 서버로부터 위치 수신
-socket.on('position', (pos) => {
-  if (isDragging || pressedKeys.size > 0) return;
+const socket = io();
+const character = document.getElementById('character');
+const buttons = document.querySelectorAll('#buttons button');
+const bubble = document.getElementById('bubble');
+const chatInput = document.getElementById('chat-input');
+const sendBtn = document.getElementById('send-btn');
+const chatLog = document.getElementById('chat-log');
 
-  const centerX = pos.x * gameArea.clientWidth;
-  const centerY = pos.y * gameArea.clientHeight;
-  const x = Math.max(0, Math.min(centerX - character.clientWidth / 2, gameArea.clientWidth - character.clientWidth));
-  const y = Math.max(0, Math.min(centerY - character.clientHeight / 2, gameArea.clientHeight - character.clientHeight));
+// 캐릭터 이동
+buttons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const dir = button.textContent;
 
-  characterX = x;
-  characterY = y;
-  character.style.left = `${x}px`;
-  character.style.top = `${y}px`;
-
-  if (!isDragging) {
-    if (pos.direction) {
-      currentDirection = pos.direction;
+    switch (dir) {
+      case '↑':
+        moveCharacter(0, -10);
+        break;
+      case '↓':
+        moveCharacter(0, 10);
+        break;
+      case '←':
+        moveCharacter(-10, 0, true);
+        break;
+      case '→':
+        moveCharacter(10, 0, false);
+        break;
+      case 'A':
+        showBubble('안녕!');
+        break;
     }
 
-    if (pos.anim) {
-      currentAnim = pos.anim;
-      character.style.backgroundImage = `url('${pos.anim}')`;
-    }
+    socket.emit('move', dir);
+  });
+});
 
-    character.style.transform = currentDirection === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
+function moveCharacter(dx, dy, flip = false) {
+  const style = getComputedStyle(character);
+  const left = parseInt(style.left || 0, 10);
+  const top = parseInt(style.top || 0, 10);
 
-    if (!pos.dragging) {
-      clearTimeout(window.animTimeout);
-      window.animTimeout = setTimeout(() => {
-        setCharacterAnimation(false);
-      }, 200);
-    }
+  character.style.left = left + dx + 'px';
+  character.style.top = top + dy + 'px';
+
+  if (flip !== undefined) {
+    character.style.transform = flip ? 'scaleX(-1)' : 'scaleX(1)';
+  }
+}
+
+function showBubble(text) {
+  bubble.textContent = text;
+  bubble.style.display = 'block';
+
+  setTimeout(() => {
+    bubble.style.display = 'none';
+  }, 3000);
+}
+
+// 채팅 전송
+sendBtn.addEventListener('click', async () => {
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+
+  appendMessage('👤 나: ' + msg);
+  chatInput.value = '';
+
+  try {
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+
+    const data = await res.json();
+    const reply = data.reply ?? '(응답 없음)';
+    appendMessage('🤖 AI: ' + reply);
+    showBubble(reply);
+  } catch (err) {
+    console.error(err);
+    appendMessage('❌ 오류 발생: 서버가 응답하지 않습니다.');
   }
 });
 
-// AI 채팅 처리
-sendBtn.addEventListener('click', async () => {
-  const userMessage = chatInput.value.trim();
-  if (!userMessage) return;
-  addMessageToLog('나', userMessage);
-  chatInput.value = '';
-  showBubble(userMessage);
-
-  const aiMessage = await fetchAIResponse(userMessage);
-  showBubble(aiMessage);
-  addMessageToLog('AI', aiMessage);
-});
-
-function addMessageToLog(sender, message) {
-  const msgDiv = document.createElement('div');
-  msgDiv.textContent = `${sender}: ${message}`;
-  chatLog.appendChild(msgDiv);
+function appendMessage(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  chatLog.appendChild(div);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-function showBubble(message) {
-  bubble.textContent = message;
-  bubble.style.display = 'block';
-  clearTimeout(bubble._timeout);
-  bubble._timeout = setTimeout(() => {
-    bubble.style.display = 'none';
-  }, 5000);
-}
-
-async function fetchAIResponse(message) {
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': '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',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-4',
-        messages: [
-          { role: 'system', content: '사용자의 질문에 친절하게 대답해 주세요.' },
-          { role: 'user', content: message }
-        ]
-      })
-    });
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content ?? '(AI 응답 없음)';
-  } catch (err) {
-    console.error(err);
-    return '(AI 오류 발생)';
-  }
-}
+// 서버에서 다른 사용자 이동 수신
+socket.on('move', (dir) => {
+  // 서버에서 받은 이동은 로그만 출력 (확장 가능)
+  console.log('다른 사용자 이동:', dir);
+});

@@ -20,8 +20,11 @@ body {
   top: 150px;
   width: 100px;
   height: 100px;
-  background-size: cover;
+  background-size: contain;       /* ✅ cover → contain 으로 변경 */
+  background-position: center;   /* ✅ 중심 정렬 추가 */
+  background-repeat: no-repeat;  /* ✅ 반복 방지 */
 }
+
 
 #bubble {
   position: absolute;

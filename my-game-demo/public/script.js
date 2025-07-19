@@ -35,7 +35,7 @@ export const state = {
   bubbleTimeout: null    // ✅ 이 줄 추가
 };
 
-/ ✅ 여기 아래에 추가!
+// ✅ 여기 아래에 추가!
 socket.on('position', (data) => {
   const { x, y, direction, anim } = data;
   const { character, gameArea } = state;
@@ -134,7 +134,3 @@ document.querySelectorAll('#buttons button').forEach(btn => {
     }
   });
 });
-
-
-setupKeyboardControls(state);
-setupDragControls(state);

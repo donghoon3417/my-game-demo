@@ -15,6 +15,7 @@ export function setupButtonControls(state) {
         intervalId = setInterval(() => {
           moveCharacterLocally(direction);
 
+          // 이동 후의 실제 좌표 비율 계산 (중앙 기준)
           const posX = parseFloat(state.character.style.left) || 0;
           const posY = parseFloat(state.character.style.top) || 0;
           const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
@@ -54,7 +55,7 @@ export function setupButtonControls(state) {
         intervalId = null;
       }
 
-      // 모든 키에서 공통적으로 anim1.gif로 복귀
+      // 정지 애니메이션으로 복귀
       state.character.style.backgroundImage = `url('./images/anim1.gif')`;
 
       const posX = parseFloat(state.character.style.left) || 0;
@@ -71,7 +72,7 @@ export function setupButtonControls(state) {
       });
     };
 
-    // 🖱️ 데스크탑
+    // 🖱️ 데스크탑 이벤트
     btn.addEventListener('mousedown', () => {
       if (isTouch) return;
       start();
@@ -79,7 +80,7 @@ export function setupButtonControls(state) {
     btn.addEventListener('mouseup', stop);
     btn.addEventListener('mouseleave', stop);
 
-    // 📱 모바일
+    // 📱 터치 이벤트
     btn.addEventListener('touchstart', (e) => {
       e.preventDefault();
       isTouch = true;

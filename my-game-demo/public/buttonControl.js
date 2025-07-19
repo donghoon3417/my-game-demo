@@ -5,6 +5,7 @@ export function setupButtonControls(state) {
   document.querySelectorAll('#buttons button').forEach(btn => {
     const key = btn.textContent;
     let intervalId = null;
+    let pressTimeout = null; // A 버튼용 타이머
 
     const start = () => {
       if (['↑', '↓', '←', '→'].includes(key)) {
@@ -13,7 +14,7 @@ export function setupButtonControls(state) {
         const direction = dirMap[key];
 
         intervalId = setInterval(() => {
-          moveCharacterLocally(direction); // ✅ 위치 이동 반영
+          moveCharacterLocally(direction);
 
           const posX = parseFloat(state.character.style.left) || 0;
           const posY = parseFloat(state.character.style.top) || 0;
@@ -31,12 +32,13 @@ export function setupButtonControls(state) {
       }
 
       if (key === 'A') {
+        // 즉시 anim12.gif
+        state.character.style.backgroundImage = `url('./images/anim12.gif')`;
+
         const posX = parseFloat(state.character.style.left) || 0;
         const posY = parseFloat(state.character.style.top) || 0;
         const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
         const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
-
-        state.character.style.backgroundImage = `url('./images/anim12.gif')`;
 
         state.socket.emit('drag', {
           x: centerX,
@@ -45,6 +47,19 @@ export function setupButtonControls(state) {
           dragging: false,
           anim: './images/anim12.gif'
         });
+
+        // 짧게 누른 경우: 300ms 후 anim1.gif로 복귀
+        pressTimeout = setTimeout(() => {
+          state.character.style.backgroundImage = `url('./images/anim1.gif')`;
+
+          state.socket.emit('drag', {
+            x: centerX,
+            y: centerY,
+            direction: state.currentDirection,
+            dragging: false,
+            anim: './images/anim1.gif'
+          });
+        }, 300);
       }
     };
 
@@ -52,6 +67,7 @@ export function setupButtonControls(state) {
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
+
         state.character.style.backgroundImage = `url('./images/anim1.gif')`;
 
         const posX = parseFloat(state.character.style.left) || 0;
@@ -67,9 +83,29 @@ export function setupButtonControls(state) {
           anim: './images/anim1.gif'
         });
       }
+
+      if (key === 'A' && pressTimeout) {
+        clearTimeout(pressTimeout); // 누르고 있다가 뗀 경우에는 타이머 제거
+        pressTimeout = null;
+
+        const posX = parseFloat(state.character.style.left) || 0;
+        const posY = parseFloat(state.character.style.top) || 0;
+        const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
+        const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
+
+        state.character.style.backgroundImage = `url('./images/anim1.gif')`;
+
+        state.socket.emit('drag', {
+          x: centerX,
+          y: centerY,
+          direction: state.currentDirection,
+          dragging: false,
+          anim: './images/anim1.gif'
+        });
+      }
     };
 
-    // 데스크탑
+    // 🖱️ 데스크탑
     btn.addEventListener('mousedown', () => {
       if (isTouch) return;
       start();
@@ -77,7 +113,7 @@ export function setupButtonControls(state) {
     btn.addEventListener('mouseup', stop);
     btn.addEventListener('mouseleave', stop);
 
-    // 모바일
+    // 📱 모바일
     btn.addEventListener('touchstart', (e) => {
       e.preventDefault();
       isTouch = true;

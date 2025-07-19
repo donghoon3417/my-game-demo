@@ -38,30 +38,33 @@ def handle_move(data):
     global position
     direction = data.get('direction')
     step = data.get('step', 0.01)
-    anim = data.get('anim')  # ✅ 클라이언트가 보내준 anim 사용
+    anim = data.get('anim')
 
-    if direction:
-        position['direction'] = direction
+    # ✅ 모바일 또는 절대 위치가 주어졌을 경우
+    if 'x' in data and 'y' in data:
+        position['x'] = max(0, min(data['x'], 1))
+        position['y'] = max(0, min(data['y'], 1))
+    else:
+        if direction:
+            position['direction'] = direction
 
-        if direction in ['left', '←']:
-            position['x'] -= step
-        elif direction in ['right', '→']:
-            position['x'] += step
-        elif direction in ['up', '↑']:
-            position['y'] -= step
-        elif direction in ['down', '↓']:
-            position['y'] += step
+            if direction in ['left', '←']:
+                position['x'] -= step
+            elif direction in ['right', '→']:
+                position['x'] += step
+            elif direction in ['up', '↑']:
+                position['y'] -= step
+            elif direction in ['down', '↓']:
+                position['y'] += step
 
-        # 위치 범위 제한
-        position['x'] = max(0, min(position['x'], 1))
-        position['y'] = max(0, min(position['y'], 1))
+            # 위치 제한
+            position['x'] = max(0, min(position['x'], 1))
+            position['y'] = max(0, min(position['y'], 1))
 
-        # ✅ anim 값 갱신
-        if anim:
-            position['anim'] = anim
+    if anim:
+        position['anim'] = anim
 
-        emit('position', position, broadcast=True, include_self=False)
-
+    emit('position', position, broadcast=True, include_self=False)
 
 @socketio.on('chat_message')
 def handle_chat_message(data):
@@ -71,7 +74,7 @@ def handle_chat_message(data):
 def chat():
     data = request.get_json()
     message = data.get('message')
-    character_name = data.get('characterName', '루카')  # 기본값
+    character_name = data.get('characterName', '루카')
 
     if not message:
         return jsonify({'reply': '메시지를 입력해주세요.'}), 400
@@ -109,7 +112,6 @@ def chat():
         }
     }
 
-    # 지정된 캐릭터가 없으면 기본
     profile = character_profiles.get(character_name, {
         "personality": "친절하고 정중한 AI입니다.",
         "lang": "한국어"

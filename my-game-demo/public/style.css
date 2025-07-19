@@ -1,87 +1,86 @@
 body {
   margin: 0;
-  padding: 0;
-  background: #e0f7fa;
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
+}
+
+#container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   height: 100vh;
-  overflow: hidden;
 }
 
-/* 게임 영역: 전체 가로폭 사용 + 가로 넓은 비율로 설정 */
 #game-area {
+  flex: 2;
   position: relative;
-  width: 100vw;
-  max-width: 1920px;
-  aspect-ratio: 5 / 2;
   background-color: #f0f0f0;
-  border: 2px solid #ccc;
-  overflow: hidden;
-  margin: 0 auto;
 }
 
-/* 캐릭터: 데스크탑 기준 크기 */
 #character {
   position: absolute;
-  width: 14%;
-  height: 18%;
-  background-image: url("./images/anim1.gif");
-  background-size: contain; /* ✅ 이미지 비율 유지하며 짤림 방지 */
-  background-position: center;
-  background-repeat: no-repeat;
-  left: 10px;
-  top: 10px;
-  transition: transform 0.1s linear;
-  z-index: 10;
+  left: 150px;
+  top: 150px;
+  width: 80px;
+  height: 80px;
+  background-size: cover;
 }
 
+#bubble {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  white-space: nowrap;
+  display: none;
+  font-size: 14px;
+}
 
-/* 버튼 영역 */
 #buttons {
-  margin-top: 2vh;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.5vw;
+  gap: 5px;
 }
 
 #buttons button {
-  width: 10vw;
-  height: 10vw;
-  max-width: 80px;
-  max-height: 80px;
-  font-size: 3vw;
-  background-color: #00796b;
-  color: white;
-  border: none;
-  border-radius: 1vw;
+  font-size: 16px;
+  padding: 10px;
   cursor: pointer;
 }
 
-#buttons button:active {
-  background-color: #004d40;
+#chat-panel {
+  flex: 1;
+  border-left: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
 }
 
-/* ✅ 모바일 (가로폭 1024px 이하)에서는 캐릭터 크기를 더 작게 */
-@media (max-width: 1024px) {
-  #character {
-    width: 150px;
-    height: 150px;
-    background-size: contain; /* 짤림 방지 */
-  }
-
-  #buttons button {
-    width: 14vw;
-    height: 14vw;
-    font-size: 4vw;
-  }
-
-    #game-area {
-    width: 85vw;
-    height: 55vh; /* 👉 모바일은 고정 높이 사용 */
-    aspect-ratio: auto;
+#chat-log {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background-color: #fafafa;
 }
 
+#chat-input-area {
+  display: flex;
+  margin-top: 10px;
+}
+
+#chat-input {
+  flex: 1;
+  padding: 5px;
+  font-size: 14px;
+}
+
+#send-btn {
+  padding: 5px 10px;
+  font-size: 14px;
+  margin-left: 5px;
+  cursor: pointer;
+}

@@ -81,18 +81,22 @@ export function setupButtonControls(state) {
 
   function moveCharacterLocally(direction) {
     const step = moveStep;
-    let posX = parseFloat(state.character.style.left) || 0;
-    let posY = parseFloat(state.character.style.top) || 0;
+    let posX = state.characterX;
+    let posY = state.characterY;
 
     if (direction === 'left') posX -= step * state.gameArea.clientWidth;
     if (direction === 'right') posX += step * state.gameArea.clientWidth;
     if (direction === 'up') posY -= step * state.gameArea.clientHeight;
     if (direction === 'down') posY += step * state.gameArea.clientHeight;
 
-    posX = Math.max(0, Math.min(posX, state.gameArea.clientWidth));
-    posY = Math.max(0, Math.min(posY, state.gameArea.clientHeight));
+    posX = Math.max(0, Math.min(posX, state.gameArea.clientWidth - state.character.clientWidth));
+    posY = Math.max(0, Math.min(posY, state.gameArea.clientHeight - state.character.clientHeight));
 
+    // ✅ 상태 동기화
+    state.characterX = posX;
+    state.characterY = posY;
     state.currentDirection = direction;
+
     state.character.style.left = `${posX}px`;
     state.character.style.top = `${posY}px`;
     state.character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';

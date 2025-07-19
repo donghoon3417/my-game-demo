@@ -1,5 +1,6 @@
 import { setupKeyboardControls } from './keyboardControl.js';
 import { setupDragControls } from './dragControl.js';
+import { setupDragControls } from './buttonControl.js';
 
 const socket = io('https://my-game-demo.onrender.com', {
   transports: ['websocket'],

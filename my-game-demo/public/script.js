@@ -35,6 +35,17 @@ export const state = {
   bubbleTimeout: null,
 };
 
+// 말풍선 위치 갱신 함수
+function updateBubblePosition() {
+  const charRect = state.character.getBoundingClientRect();
+  const gameRect = state.gameArea.getBoundingClientRect();
+  const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
+  const bubbleY = charRect.top - gameRect.top;
+  state.bubble.style.left = `${bubbleX}px`;
+  state.bubble.style.top = `${bubbleY - 10}px`; // 캐릭터 위
+  state.bubble.style.transform = 'translateX(-50%)'; // 좌우 반전 방지
+}
+
 // 캐릭터 위치 동기화
 socket.on('position', (data) => {
   const { x, y, direction, anim } = data;
@@ -44,6 +55,7 @@ socket.on('position', (data) => {
   character.style.top = `${pixelY}px`;
   character.style.backgroundImage = `url('${anim}')`;
   character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
+  updateBubblePosition(); // 위치 동기화 시 말풍선도 이동
 });
 
 // 채팅 메시지 동기화
@@ -70,24 +82,13 @@ function appendMessage(text) {
 function showBubble(text) {
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
-
-  // ✅ 캐릭터 위치 기준으로 말풍선 위치 설정
-  const charRect = state.character.getBoundingClientRect();
-  const gameRect = state.gameArea.getBoundingClientRect();
-
-  const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
-  const bubbleY = charRect.top - gameRect.top;
-
-  state.bubble.style.left = `${bubbleX}px`;
-  state.bubble.style.top = `${bubbleY - 10}px`; // 약간 위로 띄우기
-  state.bubble.style.transform = 'translateX(-50%)';
+  updateBubblePosition();
 
   clearTimeout(state.bubbleTimeout);
   state.bubbleTimeout = setTimeout(() => {
     state.bubble.style.display = 'none';
   }, 30000);
 }
-
 
 // 전송 버튼 클릭 시
 state.sendBtn.addEventListener('click', async () => {
@@ -129,11 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameAreaWidth = state.gameArea.clientWidth;
   const gameAreaHeight = state.gameArea.clientHeight;
 
-  // 초기 위치를 비율로 계산 (50%, 50%)
   state.characterX = gameAreaWidth * 0.5 - state.character.clientWidth / 2;
   state.characterY = gameAreaHeight * 0.5 - state.character.clientHeight / 2;
 
   state.character.style.left = `${state.characterX}px`;
   state.character.style.top = `${state.characterY}px`;
-});
 
+  updateBubblePosition(); // 초기 위치에서도 말풍선 위치 맞춤
+});

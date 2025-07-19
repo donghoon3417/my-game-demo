@@ -37,17 +37,14 @@ export const state = {
 
 let bubbleTrackingId = null;
 
-// 말풍선 위치 갱신 함수
 function updateBubblePosition() {
   const charRect = state.character.getBoundingClientRect();
   const gameRect = state.gameArea.getBoundingClientRect();
   const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
-
-  const bubbleY = charRect.top - gameRect.top - 90; // ✅ 캐릭터 위로 올림
+  const bubbleY = charRect.top - gameRect.top - 90;
   const bubbleWidth = state.bubble.offsetWidth;
   const halfBubble = bubbleWidth / 2;
 
-  // 좌우 화면 경계 넘지 않게 제한
   let clampedLeft = Math.max(halfBubble, Math.min(bubbleX, gameRect.width - halfBubble));
 
   state.bubble.style.left = `${clampedLeft}px`;
@@ -55,11 +52,14 @@ function updateBubblePosition() {
   state.bubble.style.transform = 'translateX(-50%)';
 }
 
-// 캐릭터 위치 동기화
 socket.on('position', (data) => {
   const { x, y, direction, anim } = data;
   const pixelX = x * gameArea.clientWidth - character.clientWidth / 2;
   const pixelY = y * gameArea.clientHeight - character.clientHeight / 2;
+
+  // ✅ 상태도 갱신
+  state.characterX = pixelX;
+  state.characterY = pixelY;
 
   character.style.left = `${pixelX}px`;
   character.style.top = `${pixelY}px`;
@@ -69,19 +69,16 @@ socket.on('position', (data) => {
   updateBubblePosition();
 });
 
-// 채팅 메시지 동기화
 socket.on('chat_message', ({ user, message }) => {
   if (user === '나') return;
   appendMessage(`💬 ${user}: ${message}`);
   if (user === 'AI') showBubble(message);
 });
 
-// 컨트롤 연결
 setupKeyboardControls(state);
 setupDragControls(state);
 setupButtonControls(state);
 
-// 채팅창에 메시지 추가
 function appendMessage(text) {
   const div = document.createElement('div');
   div.textContent = text;
@@ -89,7 +86,6 @@ function appendMessage(text) {
   state.chatLog.scrollTop = state.chatLog.scrollHeight;
 }
 
-// 말풍선 표시
 function showBubble(text) {
   if (bubbleTrackingId) {
     cancelAnimationFrame(bubbleTrackingId);
@@ -116,7 +112,6 @@ function showBubble(text) {
   }, 30000);
 }
 
-// 전송 버튼 클릭 시
 state.sendBtn.addEventListener('click', async () => {
   const msg = state.chatInput.value.trim();
   if (!msg) return;
@@ -143,7 +138,6 @@ state.sendBtn.addEventListener('click', async () => {
   }
 });
 
-// Enter 키로 전송
 state.chatInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -151,7 +145,6 @@ state.chatInput.addEventListener('keydown', (e) => {
   }
 });
 
-// 초기 위치 설정
 document.addEventListener('DOMContentLoaded', () => {
   const gameAreaWidth = state.gameArea.clientWidth;
   const gameAreaHeight = state.gameArea.clientHeight;

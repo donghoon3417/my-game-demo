@@ -1,6 +1,10 @@
 import { setupKeyboardControls } from './keyboardControl.js';
 import { setupDragControls } from './dragControl.js';
-import { setupDragControls } from './buttonControl.js';
+import { setupButtonControls } from './buttonControl.js'; // ✅ 함수 이름 다르게
+
+setupKeyboardControls(state);
+setupDragControls(state);
+setupButtonControls(state);  // ✅ 버튼 제어도 명시적으로 실행
 
 const socket = io('https://my-game-demo.onrender.com', {
   transports: ['websocket'],

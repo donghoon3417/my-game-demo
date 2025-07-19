@@ -1,6 +1,6 @@
 import { setupKeyboardControls } from './keyboardControl.js';
 import { setupDragControls } from './dragControl.js';
-import { setupButtonControls } from './buttonControl.js'; // ✅ 함수 이름 다르게
+import { setupButtonControls } from './buttonControl.js';
 
 const socket = io('https://my-game-demo.onrender.com', {
   transports: ['websocket'],
@@ -32,10 +32,10 @@ export const state = {
   speed: window.innerWidth <= 600 ? 5 : 10,
   pressedKeys: new Set(),
   moveAnimationFrame: null,
-  bubbleTimeout: null    // ✅ 이 줄 추가
+  bubbleTimeout: null
 };
 
-// ✅ 여기 아래에 추가!
+// 캐릭터 위치 동기화
 socket.on('position', (data) => {
   const { x, y, direction, anim } = data;
   const { character, gameArea } = state;
@@ -49,11 +49,18 @@ socket.on('position', (data) => {
   character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
 });
 
-// 그 다음 키보드/드래그/버튼 컨트롤 연결
+// 채팅 메시지 동기화
+socket.on('chat_message', ({ user, message }) => {
+  if (user === '나') return;
+  appendMessage(`💬 ${user}: ${message}`);
+});
+
+// 컨트롤 연결
 setupKeyboardControls(state);
 setupDragControls(state);
 setupButtonControls(state);
 
+// 채팅창에 메시지 추가
 function appendMessage(text) {
   const div = document.createElement('div');
   div.textContent = text;
@@ -61,26 +68,30 @@ function appendMessage(text) {
   state.chatLog.scrollTop = state.chatLog.scrollHeight;
 }
 
+// 말풍선 표시
 function showBubble(text) {
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
 
-  // ✅ 스타일은 이미 CSS에서 설정되어 있으므로 JS에서는 안 건드려도 됨
-  // (불필요한 스타일 지정 제거)
-
   clearTimeout(state.bubbleTimeout);
   state.bubbleTimeout = setTimeout(() => {
     state.bubble.style.display = 'none';
-  }, 30000); // 30초 유지
+  }, 30000);
 }
 
-
+// 전송 버튼 클릭 시
 state.sendBtn.addEventListener('click', async () => {
   const msg = state.chatInput.value.trim();
   if (!msg) return;
 
-  appendMessage('👤 나: ' + msg);
+  const userMsg = { user: '나', message: msg };
+
+  // 본인에게 출력
+  appendMessage(`👤 ${userMsg.user}: ${userMsg.message}`);
   state.chatInput.value = '';
+
+  // 서버로 브로드캐스트 요청
+  state.socket.emit('chat_message', userMsg);
 
   try {
     const res = await fetch('/chat', {
@@ -91,15 +102,23 @@ state.sendBtn.addEventListener('click', async () => {
 
     const data = await res.json();
     const reply = data.reply ?? '(응답 없음)';
-    appendMessage('🤖 AI: ' + reply);
-    showBubble(reply);
+
+    const aiMsg = { user: 'AI', message: reply };
+
+    // 본인에게 출력 및 말풍선
+    appendMessage(`🤖 ${aiMsg.user}: ${aiMsg.message}`);
+    showBubble(aiMsg.message);
+
+    // 서버로 AI 메시지도 전송 (다른 사람도 보이게)
+    state.socket.emit('chat_message', aiMsg);
+
   } catch (err) {
     console.error(err);
     appendMessage('❌ 오류 발생: 서버가 응답하지 않습니다.');
   }
 });
 
-// ✅ 여기 추가됨: Enter 키로 전송
+// Enter 키로 전송
 state.chatInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -107,6 +126,7 @@ state.chatInput.addEventListener('keydown', (e) => {
   }
 });
 
+// 초기 위치 설정
 document.addEventListener('DOMContentLoaded', () => {
   const rect = state.character.getBoundingClientRect();
   const parentRect = state.gameArea.getBoundingClientRect();

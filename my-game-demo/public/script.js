@@ -115,22 +115,3 @@ document.addEventListener('DOMContentLoaded', () => {
   state.character.style.left = `${state.characterX}px`;
   state.character.style.top = `${state.characterY}px`;
 });
-
-document.querySelectorAll('#buttons button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const key = btn.textContent;
-
-    if (['↑', '↓', '←', '→'].includes(key)) {
-      const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
-      state.socket.emit('move', { direction: dirMap[key] });
-    } else if (key === 'A') {
-      state.socket.emit('drag', {
-        x: (state.characterX + state.character.clientWidth / 2) / state.gameArea.clientWidth,
-        y: (state.characterY + state.character.clientHeight / 2) / state.gameArea.clientHeight,
-        direction: state.currentDirection,
-        dragging: false,
-        anim: './images/anim12.gif'
-      });
-    }
-  });
-});

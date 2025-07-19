@@ -2,10 +2,6 @@ import { setupKeyboardControls } from './keyboardControl.js';
 import { setupDragControls } from './dragControl.js';
 import { setupButtonControls } from './buttonControl.js'; // ✅ 함수 이름 다르게
 
-setupKeyboardControls(state);
-setupDragControls(state);
-setupButtonControls(state);  // ✅ 버튼 제어도 명시적으로 실행
-
 const socket = io('https://my-game-demo.onrender.com', {
   transports: ['websocket'],
   secure: true,
@@ -39,6 +35,24 @@ export const state = {
   bubbleTimeout: null    // ✅ 이 줄 추가
 };
 
+/ ✅ 여기 아래에 추가!
+socket.on('position', (data) => {
+  const { x, y, direction, anim } = data;
+  const { character, gameArea } = state;
+
+  const pixelX = x * gameArea.clientWidth - character.clientWidth / 2;
+  const pixelY = y * gameArea.clientHeight - character.clientHeight / 2;
+
+  character.style.left = `${pixelX}px`;
+  character.style.top = `${pixelY}px`;
+  character.style.backgroundImage = `url('${anim}')`;
+  character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
+});
+
+// 그 다음 키보드/드래그/버튼 컨트롤 연결
+setupKeyboardControls(state);
+setupDragControls(state);
+setupButtonControls(state);
 
 function appendMessage(text) {
   const div = document.createElement('div');

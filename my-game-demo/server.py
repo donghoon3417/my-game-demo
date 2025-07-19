@@ -38,6 +38,7 @@ def handle_move(data):
     global position
     direction = data.get('direction')
     step = data.get('step', 0.01)
+    anim = data.get('anim')  # ✅ 클라이언트가 보내준 anim 사용
 
     if direction:
         position['direction'] = direction
@@ -51,10 +52,16 @@ def handle_move(data):
         elif direction in ['down', '↓']:
             position['y'] += step
 
+        # 위치 범위 제한
         position['x'] = max(0, min(position['x'], 1))
         position['y'] = max(0, min(position['y'], 1))
 
+        # ✅ anim 값 갱신
+        if anim:
+            position['anim'] = anim
+
         emit('position', position, broadcast=True, include_self=False)
+
 
 @socketio.on('chat_message')
 def handle_chat_message(data):

@@ -60,6 +60,7 @@ def handle_move(data):
 def chat():
     data = request.get_json()
     message = data.get('message')
+    character_name = data.get('characterName', '루카')  # 기본 이름은 루카
 
     if not message:
         return jsonify({'reply': '메시지를 입력해주세요.'}), 400
@@ -81,7 +82,7 @@ def chat():
         headers = {
             'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://yourapp.com',  # OpenRouter에 등록된 앱 주소로 교체 가능
+            'HTTP-Referer': 'https://yourapp.com',  # 등록한 도메인 주소로 바꿀 것
         }
 
         payload = {
@@ -89,7 +90,7 @@ def chat():
             "messages": [
                 {
                     "role": "system",
-                    "content": f"당신은 {lang}로만 대답하는 친절한 AI입니다. 반드시 {lang}로만 응답하세요."
+                    "content": f"당신은 이름이 '{character_name}'인 가상의 캐릭터입니다. 사용자가 하는 말에 친근하고 귀엽게 {lang}로만 대답하세요. 이름 '{character_name}'을 자주 사용해도 좋아요."
                 },
                 {
                     "role": "user",

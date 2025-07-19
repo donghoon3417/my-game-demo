@@ -28,7 +28,7 @@ body {
 
 #bubble {
   position: absolute;
-  bottom: 100%; /* 캐릭터 위로 배치 */
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   margin-bottom: 8px;
@@ -41,17 +41,17 @@ body {
 
   display: none;
 
-  max-width: 500px;   /* ✅ 가로로 더 넓게 */
-  min-width: 100px;
- white-space: normal;
- word-break: keep-all;
-overflow-wrap: break-word;
-
+  max-width: 700px;               /* ✅ 가로 최대 길이 더 늘림 */
+  min-width: 150px;
+  white-space: normal;
+  word-break: keep-all;           /* ✅ 단어 단위로 줄바꿈 */
+  overflow-wrap: break-word;      /* ✅ 너무 길 경우 줄바꿈 */
   text-align: center;
 
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   z-index: 10;
 }
+
 
 #buttons {
   position: absolute;

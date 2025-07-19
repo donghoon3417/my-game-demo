@@ -287,7 +287,7 @@ buttons.forEach((button) => {
       case '↓': moveCharacter(0, 10); break;
       case '←': moveCharacter(-10, 0, true); break;
       case '→': moveCharacter(10, 0, false); break;
-      case 'A': showBubble('안녕!'); break;
+      case 'A': showBubble('나의 주먹을 받아랏!'); break;
     }
 
     // 🔥 여기 수정

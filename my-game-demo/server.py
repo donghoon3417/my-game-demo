@@ -77,22 +77,33 @@ def chat():
         }
 
         payload = {
-            "model": "openai/gpt-4",  # 원하는 모델명으로 변경 가능
+            "model": "openai/gpt-4",  # 또는 openrouter/any-model
             "messages": [
                 {"role": "system", "content": "너는 친절한 게임 속 캐릭터야."},
                 {"role": "user", "content": message}
             ]
         }
 
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
         response.raise_for_status()
-
         reply = response.json()['choices'][0]['message']['content'].strip()
         return jsonify({'reply': reply})
 
+    except requests.exceptions.Timeout:
+        print("[오류] OpenRouter 요청 시간 초과")
+        return jsonify({'reply': 'AI 응답 시간이 초과되었습니다.'}), 504
+    except requests.exceptions.RequestException as e:
+        print(f"[OpenRouter 요청 오류] {e}")
+        return jsonify({'reply': 'OpenRouter 연결 실패'}), 502
     except Exception as e:
-        print(f"[OpenRouter 오류] {e}")
-        return jsonify({'reply': 'AI 응답 실패: OpenRouter 요청 중 오류 발생'}), 500
+        print(f"[알 수 없는 오류] {e}")
+        return jsonify({'reply': '예기치 못한 서버 오류'}), 500
+
 
 # 서버 실행
 if __name__ == '__main__':

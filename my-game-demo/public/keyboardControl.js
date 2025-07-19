@@ -19,11 +19,20 @@ export function setupKeyboardControls(state) {
     const ratioX = (x + character.clientWidth / 2) / gameArea.clientWidth;
     const ratioY = (y + character.clientHeight / 2) / gameArea.clientHeight;
 
+    // 서버에 현재 위치 전송
     socket.emit('drag', {
       x: ratioX,
       y: ratioY,
       direction: state.currentDirection,
       dragging: state.isDragging,
+      anim: state.currentAnim
+    });
+
+    socket.emit('move', {
+      direction: state.currentDirection,
+      step: 0, // 직접 좌표 지정
+      x: ratioX,
+      y: ratioY,
       anim: state.currentAnim
     });
   }
@@ -83,6 +92,26 @@ export function setupKeyboardControls(state) {
       state.moveAnimationFrame = null;
     }
     setCharacterAnimation(false);
+
+    // 마지막 위치도 서버에 전송
+    const ratioX = (state.characterX + character.clientWidth / 2) / gameArea.clientWidth;
+    const ratioY = (state.characterY + character.clientHeight / 2) / gameArea.clientHeight;
+
+    socket.emit('drag', {
+      x: ratioX,
+      y: ratioY,
+      direction: state.currentDirection,
+      dragging: false,
+      anim: './images/anim1.gif'
+    });
+
+    socket.emit('move', {
+      direction: state.currentDirection,
+      step: 0,
+      x: ratioX,
+      y: ratioY,
+      anim: './images/anim1.gif'
+    });
   }
 
   document.addEventListener('keydown', (e) => {
@@ -97,13 +126,6 @@ export function setupKeyboardControls(state) {
 
     if (key === 'a') {
       setCharacterAnimation(true, './images/anim12.gif');
-      socket.emit('drag', {
-        x: (state.characterX + character.clientWidth / 2) / gameArea.clientWidth,
-        y: (state.characterY + character.clientHeight / 2) / gameArea.clientHeight,
-        direction: state.currentDirection,
-        dragging: state.isDragging,
-        anim: './images/anim12.gif'
-      });
     } else {
       setCharacterAnimation(true);
     }
@@ -117,14 +139,6 @@ export function setupKeyboardControls(state) {
 
     if (pressedKeys.size === 0) {
       stopMoving();
-      setCharacterAnimation(false);
-      socket.emit('drag', {
-        x: (state.characterX + character.clientWidth / 2) / gameArea.clientWidth,
-        y: (state.characterY + character.clientHeight / 2) / gameArea.clientHeight,
-        direction: state.currentDirection,
-        dragging: false,
-        anim: './images/anim1.gif'
-      });
     }
   });
 }

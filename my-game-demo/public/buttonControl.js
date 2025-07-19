@@ -14,34 +14,23 @@ export function setupButtonControls(state) {
 
         intervalId = setInterval(() => {
           moveCharacterLocally(direction);
-
-          // 이동 후의 실제 좌표 비율 계산 (중앙 기준)
-          const posX = parseFloat(state.character.style.left) || 0;
-          const posY = parseFloat(state.character.style.top) || 0;
-          const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
-          const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
-
+          const { x, y } = getCharacterCenterRatio();
           state.socket.emit('move', {
             direction,
             step: moveStep,
             anim: './images/anim11.gif',
-            x: centerX,
-            y: centerY
+            x,
+            y
           });
         }, 50);
       }
 
       if (key === 'A') {
         state.character.style.backgroundImage = `url('./images/anim12.gif')`;
-
-        const posX = parseFloat(state.character.style.left) || 0;
-        const posY = parseFloat(state.character.style.top) || 0;
-        const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
-        const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
-
+        const { x, y } = getCharacterCenterRatio();
         state.socket.emit('drag', {
-          x: centerX,
-          y: centerY,
+          x,
+          y,
           direction: state.currentDirection,
           dragging: false,
           anim: './images/anim12.gif'
@@ -55,24 +44,18 @@ export function setupButtonControls(state) {
         intervalId = null;
       }
 
-      // 정지 애니메이션으로 복귀
       state.character.style.backgroundImage = `url('./images/anim1.gif')`;
-
-      const posX = parseFloat(state.character.style.left) || 0;
-      const posY = parseFloat(state.character.style.top) || 0;
-      const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
-      const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
-
+      const { x, y } = getCharacterCenterRatio();
       state.socket.emit('drag', {
-        x: centerX,
-        y: centerY,
+        x,
+        y,
         direction: state.currentDirection,
         dragging: false,
         anim: './images/anim1.gif'
       });
     };
 
-    // 🖱️ 데스크탑 이벤트
+    // 🖱️ 데스크탑
     btn.addEventListener('mousedown', () => {
       if (isTouch) return;
       start();
@@ -80,7 +63,7 @@ export function setupButtonControls(state) {
     btn.addEventListener('mouseup', stop);
     btn.addEventListener('mouseleave', stop);
 
-    // 📱 터치 이벤트
+    // 📱 모바일
     btn.addEventListener('touchstart', (e) => {
       e.preventDefault();
       isTouch = true;
@@ -113,5 +96,15 @@ export function setupButtonControls(state) {
     state.character.style.left = `${posX}px`;
     state.character.style.top = `${posY}px`;
     state.character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
+  }
+
+  function getCharacterCenterRatio() {
+    const charRect = state.character.getBoundingClientRect();
+    const gameRect = state.gameArea.getBoundingClientRect();
+
+    const centerX = (charRect.left + charRect.width / 2 - gameRect.left) / gameRect.width;
+    const centerY = (charRect.top + charRect.height / 2 - gameRect.top) / gameRect.height;
+
+    return { x: centerX, y: centerY };
   }
 }

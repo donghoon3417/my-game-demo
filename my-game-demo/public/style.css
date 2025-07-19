@@ -30,9 +30,7 @@ body {
   position: absolute;
   bottom: 100%;
   left: 50%;
- #bubble {
-  /* 기존 스타일 유지 + 추가 ↓ */
-  transform: translateX(-50%) scaleX(1) !important;
+  transform: translateX(-50%);
   margin-bottom: 8px;
 
   background: #fff;
@@ -46,13 +44,17 @@ body {
   max-width: 700px;               /* ✅ 가로 최대 길이 더 늘림 */
   min-width: 150px;
   white-space: normal;
-  word-break: keep-all;           /* ✅ 단어 단위로 줄바꿈 */
-  overflow-wrap: break-word;      /* ✅ 너무 길 경우 줄바꿈 */
+  word-break: keep-all;           /* ✅ 단어 단위 줄바꿈 (한국어에 적합) */
+  overflow-wrap: break-word;      /* ✅ 긴 단어 줄바꿈 */
   text-align: center;
 
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   z-index: 10;
+
+  /* ✅ 캐릭터 방향 반전(scaleX)에 영향 받지 않도록 분리 */
+  pointer-events: none; /* 말풍선 클릭 방지 (선택) */
 }
+
 
 
 #buttons {

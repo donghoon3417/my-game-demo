@@ -1,5 +1,6 @@
 export function setupButtonControls(state) {
   const moveStep = 0.01;
+  let isTouch = false; // 모바일 이벤트와 데스크탑 중복 방지
 
   document.querySelectorAll('#buttons button').forEach(btn => {
     const key = btn.textContent;
@@ -17,7 +18,6 @@ export function setupButtonControls(state) {
           const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
           const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
 
-          // 서버 기준 위치 이동만 요청
           state.socket.emit('move', {
             direction,
             step: moveStep,
@@ -67,17 +67,27 @@ export function setupButtonControls(state) {
       }
     };
 
-    // 데스크탑
-    btn.addEventListener('mousedown', start);
+    // 🖱️ 데스크탑
+    btn.addEventListener('mousedown', () => {
+      if (isTouch) return; // 모바일 이벤트와 중복 방지
+      start();
+    });
     btn.addEventListener('mouseup', stop);
     btn.addEventListener('mouseleave', stop);
 
-    // 모바일
+    // 📱 모바일
     btn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
+      e.preventDefault(); // 스크롤 방지
+      isTouch = true;
       start();
     });
-    btn.addEventListener('touchend', stop);
-    btn.addEventListener('touchcancel', stop);
+    btn.addEventListener('touchend', () => {
+      stop();
+      isTouch = false;
+    });
+    btn.addEventListener('touchcancel', () => {
+      stop();
+      isTouch = false;
+    });
   });
 }

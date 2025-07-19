@@ -1,4 +1,6 @@
 flask
-flask-socketio
-# requirements.txt에 추가
+flask-socketio==5.3.6
+python-socketio==5.7.2
+python-engineio==4.3.4
 eventlet
+requests

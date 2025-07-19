@@ -1,7 +1,11 @@
 import { setupKeyboardControls } from './keyboardControl.js';
 import { setupDragControls } from './dragControl.js';
 
-const socket = io();
+const socket = io('https://my-game-demo.onrender.com', {
+  transports: ['websocket'],
+  secure: true,
+});
+
 const character = document.getElementById('character');
 const gameArea = document.getElementById('game-area');
 const bubble = document.getElementById('bubble');

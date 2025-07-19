@@ -8,10 +8,13 @@
 <body>
   <div id="container">
     <div id="game-area">
-      <div id="character" style="background-image: url('./images/anim1.gif')">
-        <div id="bubble"></div>
-      </div>
+      <!-- ✅ 캐릭터 요소 -->
+      <div id="character" style="background-image: url('./images/anim1.gif')"></div>
 
+      <!-- ✅ 말풍선은 캐릭터 바깥에 위치시킴 (transform 영향 받지 않게) -->
+      <div id="bubble"></div>
+
+      <!-- 버튼 -->
       <div id="buttons">
         <button>↑</button>
         <button>←</button>
@@ -21,6 +24,7 @@
       </div>
     </div>
 
+    <!-- 채팅 패널 -->
     <div id="chat-panel">
       <div id="chat-log"></div>
       <div id="chat-input-area">
@@ -30,8 +34,8 @@
     </div>
   </div>
 
+  <!-- 소켓 및 스크립트 -->
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <!-- ES 모듈 사용 -->
   <script type="module" src="script.js"></script>
 </body>
 </html>

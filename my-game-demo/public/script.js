@@ -41,22 +41,19 @@ let bubbleTrackingId = null;
 function updateBubblePosition() {
   const charRect = state.character.getBoundingClientRect();
   const gameRect = state.gameArea.getBoundingClientRect();
-
   const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
-  const bubbleY = charRect.top - gameRect.top;
 
-  // 말풍선 너비 기준으로 좌우 오버플로우 방지
+  const bubbleY = charRect.top - gameRect.top - 70; // ✅ 캐릭터 위로 올림
   const bubbleWidth = state.bubble.offsetWidth;
   const halfBubble = bubbleWidth / 2;
 
-  // 최소 0, 최대 영역 범위 내 제한
+  // 좌우 화면 경계 넘지 않게 제한
   let clampedLeft = Math.max(halfBubble, Math.min(bubbleX, gameRect.width - halfBubble));
 
   state.bubble.style.left = `${clampedLeft}px`;
   state.bubble.style.top = `${bubbleY}px`;
   state.bubble.style.transform = 'translateX(-50%)';
 }
-
 
 // 캐릭터 위치 동기화
 socket.on('position', (data) => {
@@ -94,7 +91,6 @@ function appendMessage(text) {
 
 // 말풍선 표시
 function showBubble(text) {
-  // 기존 추적 제거
   if (bubbleTrackingId) {
     cancelAnimationFrame(bubbleTrackingId);
     bubbleTrackingId = null;
@@ -103,7 +99,6 @@ function showBubble(text) {
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
 
-  // 캐릭터 따라 위치 업데이트
   const update = () => {
     updateBubblePosition();
     bubbleTrackingId = requestAnimationFrame(update);

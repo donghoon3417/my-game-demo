@@ -6,16 +6,28 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="game-area">
-    <div id="character" style="background-image: url('./images/anim1.gif')"></div>
-  </div>
+  <div id="container">
+    <div id="game-area">
+      <div id="character" style="background-image: url('./images/anim1.gif')">
+        <div id="bubble"></div>
+      </div>
 
-  <div id="buttons">
-    <button>↑</button>
-    <button>←</button>
-    <button>↓</button>
-    <button>→</button>
-     <button>A</button>
+      <div id="buttons">
+        <button>↑</button>
+        <button>←</button>
+        <button>↓</button>
+        <button>→</button>
+        <button>A</button>
+      </div>
+    </div>
+
+    <div id="chat-panel">
+      <div id="chat-log"></div>
+      <div id="chat-input-area">
+        <input type="text" id="chat-input" placeholder="AI에게 질문해보세요" />
+        <button id="send-btn">전송</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>

@@ -29,13 +29,22 @@ body {
   left: 50%;
   transform: translateX(-50%);
   background: #fff;
-  padding: 5px 10px;
-  border-radius: 20px;
+  padding: 8px 12px;
+  border-radius: 12px;
   border: 1px solid #ccc;
-  white-space: nowrap;
-  display: none;
   font-size: 14px;
+  display: none;
+
+  /* ✅ 수정된 부분 */
+  max-width: 300px;
+  min-width: 80px;
+  word-wrap: break-word;
+  white-space: normal;
+  text-align: left;
+  writing-mode: horizontal-tb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
+
 
 #buttons {
   position: absolute;

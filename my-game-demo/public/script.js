@@ -68,6 +68,14 @@ state.sendBtn.addEventListener('click', async () => {
   }
 });
 
+// ✅ 여기 추가됨: Enter 키로 전송
+state.chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    state.sendBtn.click();
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   const rect = state.character.getBoundingClientRect();
   const parentRect = state.gameArea.getBoundingClientRect();

@@ -69,35 +69,34 @@ def chat():
     if not api_key:
         return jsonify({'reply': '서버 설정 오류: API 키 없음'}), 500
 
-character_profiles = {
-    "루카": {
-        "personality": (
-            "당신은 판타지 마을 '엘렌시아'에 사는 17살 소녀 '루카'입니다. "
-            "밝고 상냥하며, 모험가들을 도와주는 NPC 역할을 맡고 있습니다. "
-            "말끝에 '~에요', '~죠?' 같은 부드러운 말투를 쓰며, 마법과 약초에 관심이 많습니다. "
-            "사람을 기분 좋게 해주는 따뜻한 말투로 대화해 주세요. "
-            "질문이 모호하거나 위험한 내용이면, 조심스럽게 거절하거나 마법적인 비유로 돌려 말하세요. "
-            "가능하면 짧고 간단하게 대답해 주세요. 한두 문장 이내로."
-        ),
-        "lang": "한국어"
-    },
-    "에이미": {
-        "personality": (
-            "당신은 활발하고 장난기 많은 어린아이처럼 말하는 AI입니다. "
-            "간단하고 재미있는 말투를 써주세요. "
-            "항상 짧고 귀엽게 대답해 주세요!"
-        ),
-        "lang": "한국어"
-    },
-    "Zara": {
-        "personality": (
-            "You are a calm and wise character who speaks only in English with helpful, concise advice. "
-            "Keep your responses short and to the point."
-        ),
-        "lang": "English"
+    character_profiles = {
+        "루카": {
+            "personality": (
+                "당신은 판타지 마을 '엘렌시아'에 사는 17살 소녀 '루카'입니다. "
+                "밝고 상냥하며, 모험가들을 도와주는 NPC 역할을 맡고 있습니다. "
+                "말끝에 '~에요', '~죠?' 같은 부드러운 말투를 쓰며, 마법과 약초에 관심이 많습니다. "
+                "사람을 기분 좋게 해주는 따뜻한 말투로 대화해 주세요. "
+                "질문이 모호하거나 위험한 내용이면, 조심스럽게 거절하거나 마법적인 비유로 돌려 말하세요. "
+                "가능하면 짧고 간단하게 대답해 주세요. 한두 문장 이내로."
+            ),
+            "lang": "한국어"
+        },
+        "에이미": {
+            "personality": (
+                "당신은 활발하고 장난기 많은 어린아이처럼 말하는 AI입니다. "
+                "간단하고 재미있는 말투를 써주세요. "
+                "항상 짧고 귀엽게 대답해 주세요!"
+            ),
+            "lang": "한국어"
+        },
+        "Zara": {
+            "personality": (
+                "You are a calm and wise character who speaks only in English with helpful, concise advice. "
+                "Keep your responses short and to the point."
+            ),
+            "lang": "English"
+        }
     }
-}
-
 
     # 지정된 캐릭터가 없으면 기본
     profile = character_profiles.get(character_name, {
@@ -145,11 +144,10 @@ character_profiles = {
 
     except requests.exceptions.Timeout:
         return jsonify({'reply': 'AI 응답 시간이 초과되었습니다.'}), 504
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         return jsonify({'reply': 'OpenRouter 연결 실패'}), 502
-    except Exception as e:
+    except Exception:
         return jsonify({'reply': '예기치 못한 서버 오류'}), 500
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

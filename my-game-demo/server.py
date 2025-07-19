@@ -56,6 +56,11 @@ def handle_move(data):
 
         emit('position', position, broadcast=True, include_self=False)
 
+@socketio.on('chat_message')
+def handle_chat_message(data):
+    emit('chat_message', data, broadcast=True)
+
+
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.get_json()

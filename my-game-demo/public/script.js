@@ -41,13 +41,22 @@ let bubbleTrackingId = null;
 function updateBubblePosition() {
   const charRect = state.character.getBoundingClientRect();
   const gameRect = state.gameArea.getBoundingClientRect();
+
   const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
   const bubbleY = charRect.top - gameRect.top;
 
-  state.bubble.style.left = `${bubbleX}px`;
-  state.bubble.style.top = `${bubbleY - 10}px`;
-  state.bubble.style.transform = 'translateX(-50%)'; // 좌우 반전 영향 제거
+  // 말풍선 너비 기준으로 좌우 오버플로우 방지
+  const bubbleWidth = state.bubble.offsetWidth;
+  const halfBubble = bubbleWidth / 2;
+
+  // 최소 0, 최대 영역 범위 내 제한
+  let clampedLeft = Math.max(halfBubble, Math.min(bubbleX, gameRect.width - halfBubble));
+
+  state.bubble.style.left = `${clampedLeft}px`;
+  state.bubble.style.top = `${bubbleY}px`;
+  state.bubble.style.transform = 'translateX(-50%)';
 }
+
 
 // 캐릭터 위치 동기화
 socket.on('position', (data) => {

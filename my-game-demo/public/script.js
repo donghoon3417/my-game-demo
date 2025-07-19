@@ -5,11 +5,11 @@ const bubble = document.getElementById('bubble');
 const chatLog = document.getElementById('chat-log');
 const sendBtn = document.getElementById('send-btn');
 const chatInput = document.getElementById('chat-input');
+const buttons = document.querySelectorAll('#buttons button');
 
 let characterX = 100;
 let characterY = 100;
 let currentDirection = 'left';
-
 let isDragging = false;
 let offsetX = 0;
 let offsetY = 0;
@@ -19,7 +19,6 @@ const speed = isMobile ? 5 : 10;
 
 const pressedKeys = new Set();
 let moveAnimationFrame = null;
-
 let currentAnim = './images/anim1.gif';
 
 function setCharacterAnimation(running, overrideAnim = null) {
@@ -158,8 +157,7 @@ function stopMoving() {
   setCharacterAnimation(false);
 }
 
-// 버튼 조작 처리
-const buttons = document.querySelectorAll('#buttons button');
+// 버튼 조작
 const keyMap = { '↑': 'ArrowUp', '↓': 'ArrowDown', '←': 'ArrowLeft', '→': 'ArrowRight', 'A': 'a' };
 
 buttons.forEach(button => {
@@ -209,7 +207,7 @@ buttons.forEach(button => {
   button.addEventListener('touchend', release);
 });
 
-// 드래그 이벤트 (데스크탑/모바일 공통)
+// 드래그
 function handleDragStart(e, isTouch = false) {
   isDragging = true;
   const point = isTouch ? e.touches[0] : e;
@@ -236,69 +234,11 @@ function handleDragEnd() {
 character.addEventListener('mousedown', e => handleDragStart(e));
 document.addEventListener('mousemove', e => handleDragMove(e));
 document.addEventListener('mouseup', handleDragEnd);
-
 character.addEventListener('touchstart', e => handleDragStart(e, true), { passive: false });
 document.addEventListener('touchmove', e => handleDragMove(e, true), { passive: false });
 document.addEventListener('touchend', handleDragEnd);
 
-const socket = io();
-const character = document.getElementById('character');
-const buttons = document.querySelectorAll('#buttons button');
-const bubble = document.getElementById('bubble');
-const chatInput = document.getElementById('chat-input');
-const sendBtn = document.getElementById('send-btn');
-const chatLog = document.getElementById('chat-log');
-
-// 캐릭터 이동
-buttons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const dir = button.textContent;
-
-    switch (dir) {
-      case '↑':
-        moveCharacter(0, -10);
-        break;
-      case '↓':
-        moveCharacter(0, 10);
-        break;
-      case '←':
-        moveCharacter(-10, 0, true);
-        break;
-      case '→':
-        moveCharacter(10, 0, false);
-        break;
-      case 'A':
-        showBubble('안녕!');
-        break;
-    }
-
-    socket.emit('move', dir);
-  });
-});
-
-function moveCharacter(dx, dy, flip = false) {
-  const style = getComputedStyle(character);
-  const left = parseInt(style.left || 0, 10);
-  const top = parseInt(style.top || 0, 10);
-
-  character.style.left = left + dx + 'px';
-  character.style.top = top + dy + 'px';
-
-  if (flip !== undefined) {
-    character.style.transform = flip ? 'scaleX(-1)' : 'scaleX(1)';
-  }
-}
-
-function showBubble(text) {
-  bubble.textContent = text;
-  bubble.style.display = 'block';
-
-  setTimeout(() => {
-    bubble.style.display = 'none';
-  }, 3000);
-}
-
-// 채팅 전송
+// 채팅
 sendBtn.addEventListener('click', async () => {
   const msg = chatInput.value.trim();
   if (!msg) return;
@@ -330,8 +270,27 @@ function appendMessage(text) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-// 서버에서 다른 사용자 이동 수신
-socket.on('move', (dir) => {
-  // 서버에서 받은 이동은 로그만 출력 (확장 가능)
-  console.log('다른 사용자 이동:', dir);
+function showBubble(text) {
+  bubble.textContent = text;
+  bubble.style.display = 'block';
+  setTimeout(() => {
+    bubble.style.display = 'none';
+  }, 3000);
+}
+
+// 🔧 수정한 부분: 버튼 누르면 move emit
+buttons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const dir = button.textContent;
+    switch (dir) {
+      case '↑': moveCharacter(0, -10); break;
+      case '↓': moveCharacter(0, 10); break;
+      case '←': moveCharacter(-10, 0, true); break;
+      case '→': moveCharacter(10, 0, false); break;
+      case 'A': showBubble('안녕!'); break;
+    }
+
+    // 🔥 여기 수정
+    socket.emit('move', { direction: dir });
+  });
 });

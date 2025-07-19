@@ -70,11 +70,24 @@ function appendMessage(text) {
 function showBubble(text) {
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
+
+  // ✅ 캐릭터 위치 기준으로 말풍선 위치 설정
+  const charRect = state.character.getBoundingClientRect();
+  const gameRect = state.gameArea.getBoundingClientRect();
+
+  const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
+  const bubbleY = charRect.top - gameRect.top;
+
+  state.bubble.style.left = `${bubbleX}px`;
+  state.bubble.style.top = `${bubbleY - 10}px`; // 약간 위로 띄우기
+  state.bubble.style.transform = 'translateX(-50%)';
+
   clearTimeout(state.bubbleTimeout);
   state.bubbleTimeout = setTimeout(() => {
     state.bubble.style.display = 'none';
   }, 30000);
 }
+
 
 // 전송 버튼 클릭 시
 state.sendBtn.addEventListener('click', async () => {

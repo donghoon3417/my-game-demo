@@ -3,11 +3,9 @@ import requests
 from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 
-# Flask 앱 및 Socket.IO 초기화
 app = Flask(__name__, static_folder='public')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# 캐릭터 상태 초기값
 position = {
     'x': 0.1,
     'y': 0.1,
@@ -16,17 +14,14 @@ position = {
     'dragging': False
 }
 
-# 루트 페이지 라우팅
 @app.route('/')
 def index():
     return send_from_directory('public', 'index.html')
 
-# 정적 파일 서빙
 @app.route('/<path:path>')
 def serve_file(path):
     return send_from_directory('public', path)
 
-# 드래그 이벤트 처리
 @socketio.on('drag')
 def handle_drag(data):
     global position
@@ -37,7 +32,6 @@ def handle_drag(data):
     position['dragging'] = data.get('dragging', False)
     emit('position', position, broadcast=True, include_self=False)
 
-# 이동 이벤트 처리
 @socketio.on('move')
 def handle_move(data):
     global position
@@ -61,7 +55,6 @@ def handle_move(data):
 
         emit('position', position, broadcast=True, include_self=False)
 
-# OpenRouter 기반 챗 응답 처리
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.get_json()
@@ -70,14 +63,19 @@ def chat():
     if not message:
         return jsonify({'reply': '메시지를 입력해주세요.'}), 400
 
+    api_key = os.environ.get("OPENROUTER_API_KEY")
+    if not api_key:
+        print("[환경변수 오류] OPENROUTER_API_KEY가 설정되지 않았습니다.")
+        return jsonify({'reply': '서버 설정 오류: API 키 없음'}), 500
+
     try:
         headers = {
-            'Authorization': f'Bearer {os.environ.get("OPENROUTER_API_KEY")}',
+            'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json'
         }
 
         payload = {
-            "model": "openai/gpt-4",  # 또는 openrouter/any-model
+            "model": "openrouter/openai/gpt-4",  # 모델명 명시적으로 지정
             "messages": [
                 {"role": "system", "content": "너는 친절한 게임 속 캐릭터야."},
                 {"role": "user", "content": message}
@@ -91,7 +89,14 @@ def chat():
             timeout=10
         )
         response.raise_for_status()
-        reply = response.json()['choices'][0]['message']['content'].strip()
+
+        result = response.json()
+        reply = result.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
+
+        if not reply:
+            print("[OpenRouter 응답 오류] 'content'가 없습니다:", result)
+            return jsonify({'reply': 'AI 응답 오류: 내용이 비었습니다.'}), 502
+
         return jsonify({'reply': reply})
 
     except requests.exceptions.Timeout:
@@ -104,8 +109,6 @@ def chat():
         print(f"[알 수 없는 오류] {e}")
         return jsonify({'reply': '예기치 못한 서버 오류'}), 500
 
-
-# 서버 실행
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     socketio.run(app, host='0.0.0.0', port=port)

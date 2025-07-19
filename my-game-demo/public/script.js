@@ -42,21 +42,15 @@ function showBubble(text) {
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
 
-  // ✅ 스타일 설정
-  state.bubble.style.maxWidth = '300px';         // 가로 너비 넓힘
-  state.bubble.style.minHeight = '60px';         // 최소 높이 줌 (타워형 느낌)
-  state.bubble.style.padding = '8px 12px';        // 안쪽 여백
-  state.bubble.style.borderRadius = '12px';       // 모서리 둥글게
-  state.bubble.style.backgroundColor = '#fff';    // 배경 색 (필요 시)
-  state.bubble.style.wordWrap = 'break-word';     // 줄바꿈
-  state.bubble.style.whiteSpace = 'pre-wrap';     // 줄 유지
-  state.bubble.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)'; // 그림자 (선택)
+  // ✅ 스타일은 이미 CSS에서 설정되어 있으므로 JS에서는 안 건드려도 됨
+  // (불필요한 스타일 지정 제거)
 
   clearTimeout(state.bubbleTimeout);
   state.bubbleTimeout = setTimeout(() => {
     state.bubble.style.display = 'none';
-  }, 30000); // 30초
+  }, 30000); // 30초 유지
 }
+
 
 state.sendBtn.addEventListener('click', async () => {
   const msg = state.chatInput.value.trim();

@@ -43,7 +43,7 @@ function updateBubblePosition() {
   const gameRect = state.gameArea.getBoundingClientRect();
   const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
 
-  const bubbleY = charRect.top - gameRect.top - 70; // ✅ 캐릭터 위로 올림
+  const bubbleY = charRect.top - gameRect.top - 90; // ✅ 캐릭터 위로 올림
   const bubbleWidth = state.bubble.offsetWidth;
   const halfBubble = bubbleWidth / 2;
 

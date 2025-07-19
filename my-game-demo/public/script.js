@@ -1,6 +1,10 @@
 const socket = io();
 const character = document.getElementById('character');
 const gameArea = document.getElementById('game-area');
+const bubble = document.getElementById('bubble');
+const chatLog = document.getElementById('chat-log');
+const sendBtn = document.getElementById('send-btn');
+const chatInput = document.getElementById('chat-input');
 
 let characterX = 100;
 let characterY = 100;
@@ -253,7 +257,7 @@ socket.on('position', (pos) => {
 
   if (!isDragging) {
     if (pos.direction) {
-      currentDirection = pos.direction; // ✅ 방향 상태 유지
+      currentDirection = pos.direction;
     }
 
     if (pos.anim) {
@@ -272,3 +276,55 @@ socket.on('position', (pos) => {
   }
 });
 
+// AI 채팅 처리
+sendBtn.addEventListener('click', async () => {
+  const userMessage = chatInput.value.trim();
+  if (!userMessage) return;
+  addMessageToLog('나', userMessage);
+  chatInput.value = '';
+  showBubble(userMessage);
+
+  const aiMessage = await fetchAIResponse(userMessage);
+  showBubble(aiMessage);
+  addMessageToLog('AI', aiMessage);
+});
+
+function addMessageToLog(sender, message) {
+  const msgDiv = document.createElement('div');
+  msgDiv.textContent = `${sender}: ${message}`;
+  chatLog.appendChild(msgDiv);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function showBubble(message) {
+  bubble.textContent = message;
+  bubble.style.display = 'block';
+  clearTimeout(bubble._timeout);
+  bubble._timeout = setTimeout(() => {
+    bubble.style.display = 'none';
+  }, 5000);
+}
+
+async function fetchAIResponse(message) {
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_OPENROUTER_API_KEY',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4',
+        messages: [
+          { role: 'system', content: '사용자의 질문에 친절하게 대답해 주세요.' },
+          { role: 'user', content: message }
+        ]
+      })
+    });
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content ?? '(AI 응답 없음)';
+  } catch (err) {
+    console.error(err);
+    return '(AI 오류 발생)';
+  }
+}

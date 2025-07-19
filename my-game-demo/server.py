@@ -40,26 +40,25 @@ def handle_move(data):
     step = data.get('step', 0.01)
     anim = data.get('anim')
 
-    # ✅ 모바일 또는 절대 위치가 주어졌을 경우
+    # ✅ 좌표가 들어오면 직접 위치 설정 (모바일 대비)
     if 'x' in data and 'y' in data:
         position['x'] = max(0, min(data['x'], 1))
         position['y'] = max(0, min(data['y'], 1))
-    else:
         if direction:
             position['direction'] = direction
+    elif direction:
+        position['direction'] = direction
+        if direction in ['left', '←']:
+            position['x'] -= step
+        elif direction in ['right', '→']:
+            position['x'] += step
+        elif direction in ['up', '↑']:
+            position['y'] -= step
+        elif direction in ['down', '↓']:
+            position['y'] += step
 
-            if direction in ['left', '←']:
-                position['x'] -= step
-            elif direction in ['right', '→']:
-                position['x'] += step
-            elif direction in ['up', '↑']:
-                position['y'] -= step
-            elif direction in ['down', '↓']:
-                position['y'] += step
-
-            # 위치 제한
-            position['x'] = max(0, min(position['x'], 1))
-            position['y'] = max(0, min(position['y'], 1))
+        position['x'] = max(0, min(position['x'], 1))
+        position['y'] = max(0, min(position['y'], 1))
 
     if anim:
         position['anim'] = anim

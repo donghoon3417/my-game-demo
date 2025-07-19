@@ -5,37 +5,46 @@ export function setupButtonControls(state) {
     const key = btn.textContent;
     let intervalId = null;
 
- const start = () => {
-  if (['↑', '↓', '←', '→'].includes(key)) {
-    state.character.style.backgroundImage = `url('./images/anim11.gif')`;
-    intervalId = setInterval(() => {
-      moveCharacterLocally(key);
-      const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
-      const direction = dirMap[key];
-      state.socket.emit('move', {
-        direction,
-        step: moveStep,
-        anim: './images/anim11.gif'
-      });
-    }, 50);
-  }
+    const start = () => {
+      if (['↑', '↓', '←', '→'].includes(key)) {
+        state.character.style.backgroundImage = `url('./images/anim11.gif')`;
+        intervalId = setInterval(() => {
+          moveCharacterLocally(key);
+          const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
+          const direction = dirMap[key];
 
-  if (key === 'A') {
-    const centerX = (state.characterX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
-    const centerY = (state.characterY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
+          const posX = parseFloat(state.character.style.left) || 0;
+          const posY = parseFloat(state.character.style.top) || 0;
+          const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
+          const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
 
-    state.character.style.backgroundImage = `url('./images/anim12.gif')`;
+          state.socket.emit('move', {
+            direction,
+            step: moveStep,
+            anim: './images/anim11.gif',
+            x: centerX,
+            y: centerY
+          });
+        }, 50);
+      }
 
-    state.socket.emit('drag', {
-      x: centerX,
-      y: centerY,
-      direction: state.currentDirection,
-      dragging: false,
-      anim: './images/anim12.gif'
-    });
-  }
-};
+      if (key === 'A') {
+        const posX = parseFloat(state.character.style.left) || 0;
+        const posY = parseFloat(state.character.style.top) || 0;
+        const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
+        const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
 
+        state.character.style.backgroundImage = `url('./images/anim12.gif')`;
+
+        state.socket.emit('drag', {
+          x: centerX,
+          y: centerY,
+          direction: state.currentDirection,
+          dragging: false,
+          anim: './images/anim12.gif'
+        });
+      }
+    };
 
     const stop = () => {
       if (intervalId) {
@@ -43,9 +52,10 @@ export function setupButtonControls(state) {
         intervalId = null;
         state.character.style.backgroundImage = `url('./images/anim1.gif')`;
 
-        // ✅ 정지 애니메이션도 서버로 전송
-        const centerX = (state.characterX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
-        const centerY = (state.characterY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
+        const posX = parseFloat(state.character.style.left) || 0;
+        const posY = parseFloat(state.character.style.top) || 0;
+        const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
+        const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
 
         state.socket.emit('drag', {
           x: centerX,
@@ -76,17 +86,20 @@ export function setupButtonControls(state) {
     const direction = directionMap[key];
     const step = moveStep;
 
-    if (direction === 'left') state.characterX -= step * state.gameArea.clientWidth;
-    if (direction === 'right') state.characterX += step * state.gameArea.clientWidth;
-    if (direction === 'up') state.characterY -= step * state.gameArea.clientHeight;
-    if (direction === 'down') state.characterY += step * state.gameArea.clientHeight;
+    let posX = parseFloat(state.character.style.left) || 0;
+    let posY = parseFloat(state.character.style.top) || 0;
 
-    state.characterX = Math.max(0, Math.min(state.characterX, state.gameArea.clientWidth));
-    state.characterY = Math.max(0, Math.min(state.characterY, state.gameArea.clientHeight));
+    if (direction === 'left') posX -= step * state.gameArea.clientWidth;
+    if (direction === 'right') posX += step * state.gameArea.clientWidth;
+    if (direction === 'up') posY -= step * state.gameArea.clientHeight;
+    if (direction === 'down') posY += step * state.gameArea.clientHeight;
+
+    posX = Math.max(0, Math.min(posX, state.gameArea.clientWidth));
+    posY = Math.max(0, Math.min(posY, state.gameArea.clientHeight));
 
     state.currentDirection = direction;
-    state.character.style.left = `${state.characterX}px`;
-    state.character.style.top = `${state.characterY}px`;
+    state.character.style.left = `${posX}px`;
+    state.character.style.top = `${posY}px`;
     state.character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
   }
 }

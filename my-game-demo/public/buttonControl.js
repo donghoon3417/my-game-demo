@@ -9,16 +9,16 @@ export function setupButtonControls(state) {
       if (['↑', '↓', '←', '→'].includes(key)) {
         state.character.style.backgroundImage = `url('./images/anim11.gif')`;
         intervalId = setInterval(() => {
-        moveCharacterLocally(key);
-        const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
-        const direction = dirMap[key];
-        state.socket.emit('move', {
-        direction,
-        step: moveStep,
-        anim: './images/anim11.gif' // ✅ 서버로도 애니메이션 전달
-        });
-         }, 50);
-
+          moveCharacterLocally(key);
+          const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
+          const direction = dirMap[key];
+          state.socket.emit('move', {
+            direction,
+            step: moveStep,
+            anim: './images/anim11.gif' // ✅ 서버로 애니메이션도 전송
+          });
+        }, 50);
+      }
 
       if (key === 'A') {
         const centerX = (state.characterX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
@@ -41,6 +41,18 @@ export function setupButtonControls(state) {
         clearInterval(intervalId);
         intervalId = null;
         state.character.style.backgroundImage = `url('./images/anim1.gif')`;
+
+        // ✅ 정지 애니메이션도 서버로 전송
+        const centerX = (state.characterX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
+        const centerY = (state.characterY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
+
+        state.socket.emit('drag', {
+          x: centerX,
+          y: centerY,
+          direction: state.currentDirection,
+          dragging: false,
+          anim: './images/anim1.gif'
+        });
       }
     };
 
@@ -51,7 +63,7 @@ export function setupButtonControls(state) {
 
     // 모바일
     btn.addEventListener('touchstart', (e) => {
-      e.preventDefault(); // 스크롤 방지
+      e.preventDefault();
       start();
     });
     btn.addEventListener('touchend', stop);

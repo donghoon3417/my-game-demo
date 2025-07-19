@@ -39,9 +39,14 @@ function appendMessage(text) {
 function showBubble(text) {
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
-  setTimeout(() => {
+  state.bubble.style.maxWidth = '200px';  // 최대 너비 제한
+  state.bubble.style.wordWrap = 'break-word'; // 줄바꿈 처리
+  state.bubble.style.whiteSpace = 'pre-wrap'; // 줄바꿈 유지
+
+  clearTimeout(state.bubbleTimeout);  // 기존 타이머 제거
+  state.bubbleTimeout = setTimeout(() => {
     state.bubble.style.display = 'none';
-  }, 3000);
+  }, 30000); // 30초
 }
 
 state.sendBtn.addEventListener('click', async () => {

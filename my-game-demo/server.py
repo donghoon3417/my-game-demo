@@ -75,7 +75,7 @@ def chat():
         }
 
         payload = {
-            "model": "openrouter/openai/gpt-4",  # 모델명 명시적으로 지정
+           "model": "mistralai/mistral-7b-instruct",  # 모델명 명시적으로 지정
             "messages": [
                 {"role": "system", "content": "너는 친절한 게임 속 캐릭터야."},
                 {"role": "user", "content": message}

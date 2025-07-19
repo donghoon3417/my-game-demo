@@ -9,7 +9,6 @@ export function setupButtonControls(state) {
       if (['↑', '↓', '←', '→'].includes(key)) {
         state.character.style.backgroundImage = `url('./images/anim11.gif')`;
         intervalId = setInterval(() => {
-          moveCharacterLocally(key);
           const dirMap = { '↑': 'up', '↓': 'down', '←': 'left', '→': 'right' };
           const direction = dirMap[key];
 
@@ -18,6 +17,7 @@ export function setupButtonControls(state) {
           const centerX = (posX + state.character.clientWidth / 2) / state.gameArea.clientWidth;
           const centerY = (posY + state.character.clientHeight / 2) / state.gameArea.clientHeight;
 
+          // 서버 기준 위치 이동만 요청
           state.socket.emit('move', {
             direction,
             step: moveStep,
@@ -80,26 +80,4 @@ export function setupButtonControls(state) {
     btn.addEventListener('touchend', stop);
     btn.addEventListener('touchcancel', stop);
   });
-
-  function moveCharacterLocally(key) {
-    const directionMap = { '←': 'left', '→': 'right', '↑': 'up', '↓': 'down' };
-    const direction = directionMap[key];
-    const step = moveStep;
-
-    let posX = parseFloat(state.character.style.left) || 0;
-    let posY = parseFloat(state.character.style.top) || 0;
-
-    if (direction === 'left') posX -= step * state.gameArea.clientWidth;
-    if (direction === 'right') posX += step * state.gameArea.clientWidth;
-    if (direction === 'up') posY -= step * state.gameArea.clientHeight;
-    if (direction === 'down') posY += step * state.gameArea.clientHeight;
-
-    posX = Math.max(0, Math.min(posX, state.gameArea.clientWidth));
-    posY = Math.max(0, Math.min(posY, state.gameArea.clientHeight));
-
-    state.currentDirection = direction;
-    state.character.style.left = `${posX}px`;
-    state.character.style.top = `${posY}px`;
-    state.character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
-  }
 }

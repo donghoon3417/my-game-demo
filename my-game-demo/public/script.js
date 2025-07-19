@@ -32,7 +32,7 @@ export const state = {
   speed: window.innerWidth <= 600 ? 5 : 10,
   pressedKeys: new Set(),
   moveAnimationFrame: null,
-  bubbleTimeout: null
+  bubbleTimeout: null,
 };
 
 // 캐릭터 위치 동기화
@@ -90,14 +90,13 @@ state.sendBtn.addEventListener('click', async () => {
     const res = await fetch('/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg })
+      body: JSON.stringify({ message: msg }),
     });
 
     const data = await res.json();
     const reply = data.reply ?? '(응답 없음)';
     const aiMsg = { user: 'AI', message: reply };
-    state.socket.emit('chat_message', aiMsg); // 동기화는 여기서만!
-
+    state.socket.emit('chat_message', aiMsg);
   } catch (err) {
     console.error(err);
     appendMessage('❌ 오류 발생: 서버가 응답하지 않습니다.');

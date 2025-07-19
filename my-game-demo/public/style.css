@@ -43,8 +43,10 @@ body {
 
   max-width: 500px;   /* ✅ 가로로 더 넓게 */
   min-width: 100px;
-  white-space: normal;
-  word-wrap: break-word;
+ white-space: normal;
+ word-break: keep-all;
+overflow-wrap: break-word;
+
   text-align: center;
 
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);

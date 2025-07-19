@@ -35,15 +35,18 @@ export const state = {
   bubbleTimeout: null,
 };
 
+let bubbleTrackingId = null;
+
 // 말풍선 위치 갱신 함수
 function updateBubblePosition() {
   const charRect = state.character.getBoundingClientRect();
   const gameRect = state.gameArea.getBoundingClientRect();
   const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
   const bubbleY = charRect.top - gameRect.top;
+
   state.bubble.style.left = `${bubbleX}px`;
-  state.bubble.style.top = `${bubbleY - 10}px`; // 캐릭터 위
-  state.bubble.style.transform = 'translateX(-50%)'; // 좌우 반전 방지
+  state.bubble.style.top = `${bubbleY - 10}px`;
+  state.bubble.style.transform = 'translateX(-50%)'; // 좌우 반전 영향 제거
 }
 
 // 캐릭터 위치 동기화
@@ -51,11 +54,13 @@ socket.on('position', (data) => {
   const { x, y, direction, anim } = data;
   const pixelX = x * gameArea.clientWidth - character.clientWidth / 2;
   const pixelY = y * gameArea.clientHeight - character.clientHeight / 2;
+
   character.style.left = `${pixelX}px`;
   character.style.top = `${pixelY}px`;
   character.style.backgroundImage = `url('${anim}')`;
   character.style.transform = direction === 'right' ? 'scaleX(-1)' : 'scaleX(1)';
-  updateBubblePosition(); // 위치 동기화 시 말풍선도 이동
+
+  updateBubblePosition();
 });
 
 // 채팅 메시지 동기화
@@ -79,27 +84,23 @@ function appendMessage(text) {
 }
 
 // 말풍선 표시
-let bubbleTrackingId = null;
-
-// 말풍선 표시
 function showBubble(text) {
+  // 기존 추적 제거
+  if (bubbleTrackingId) {
+    cancelAnimationFrame(bubbleTrackingId);
+    bubbleTrackingId = null;
+  }
+
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
 
+  // 캐릭터 따라 위치 업데이트
   const update = () => {
-    const charRect = state.character.getBoundingClientRect();
-    const gameRect = state.gameArea.getBoundingClientRect();
-    const bubbleX = charRect.left + charRect.width / 2 - gameRect.left;
-    const bubbleY = charRect.top - gameRect.top;
-
-    state.bubble.style.left = `${bubbleX}px`;
-    state.bubble.style.top = `${bubbleY - 10}px`;
-    state.bubble.style.transform = 'translateX(-50%)' ;
-
+    updateBubblePosition();
     bubbleTrackingId = requestAnimationFrame(update);
   };
 
-  update(); // 최초 호출로 시작
+  update();
 
   clearTimeout(state.bubbleTimeout);
   state.bubbleTimeout = setTimeout(() => {
@@ -110,7 +111,6 @@ function showBubble(text) {
     }
   }, 30000);
 }
-
 
 // 전송 버튼 클릭 시
 state.sendBtn.addEventListener('click', async () => {
@@ -158,5 +158,5 @@ document.addEventListener('DOMContentLoaded', () => {
   state.character.style.left = `${state.characterX}px`;
   state.character.style.top = `${state.characterY}px`;
 
-  updateBubblePosition(); // 초기 위치에서도 말풍선 위치 맞춤
+  updateBubblePosition();
 });

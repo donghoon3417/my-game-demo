@@ -38,11 +38,8 @@ export const state = {
 // 캐릭터 위치 동기화
 socket.on('position', (data) => {
   const { x, y, direction, anim } = data;
-  const { character, gameArea } = state;
-
   const pixelX = x * gameArea.clientWidth - character.clientWidth / 2;
   const pixelY = y * gameArea.clientHeight - character.clientHeight / 2;
-
   character.style.left = `${pixelX}px`;
   character.style.top = `${pixelY}px`;
   character.style.backgroundImage = `url('${anim}')`;
@@ -53,6 +50,7 @@ socket.on('position', (data) => {
 socket.on('chat_message', ({ user, message }) => {
   if (user === '나') return;
   appendMessage(`💬 ${user}: ${message}`);
+  if (user === 'AI') showBubble(message);
 });
 
 // 컨트롤 연결
@@ -72,7 +70,6 @@ function appendMessage(text) {
 function showBubble(text) {
   state.bubble.textContent = text;
   state.bubble.style.display = 'block';
-
   clearTimeout(state.bubbleTimeout);
   state.bubbleTimeout = setTimeout(() => {
     state.bubble.style.display = 'none';
@@ -85,12 +82,8 @@ state.sendBtn.addEventListener('click', async () => {
   if (!msg) return;
 
   const userMsg = { user: '나', message: msg };
-
-  // 본인에게 출력
   appendMessage(`👤 ${userMsg.user}: ${userMsg.message}`);
   state.chatInput.value = '';
-
-  // 서버로 브로드캐스트 요청
   state.socket.emit('chat_message', userMsg);
 
   try {
@@ -102,15 +95,8 @@ state.sendBtn.addEventListener('click', async () => {
 
     const data = await res.json();
     const reply = data.reply ?? '(응답 없음)';
-
     const aiMsg = { user: 'AI', message: reply };
-
-    // 본인에게 출력 및 말풍선
-    appendMessage(`🤖 ${aiMsg.user}: ${aiMsg.message}`);
-    showBubble(aiMsg.message);
-
-    // 서버로 AI 메시지도 전송 (다른 사람도 보이게)
-    state.socket.emit('chat_message', aiMsg);
+    state.socket.emit('chat_message', aiMsg); // 동기화는 여기서만!
 
   } catch (err) {
     console.error(err);

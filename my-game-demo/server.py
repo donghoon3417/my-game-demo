@@ -60,29 +60,42 @@ def handle_move(data):
 def chat():
     data = request.get_json()
     message = data.get('message')
-    character_name = data.get('characterName', '루카')  # 기본 이름은 루카
+    character_name = data.get('characterName', '루카')  # 기본값
 
     if not message:
         return jsonify({'reply': '메시지를 입력해주세요.'}), 400
 
     api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
-        print("[환경변수 오류] OPENROUTER_API_KEY가 설정되지 않았습니다.")
         return jsonify({'reply': '서버 설정 오류: API 키 없음'}), 500
 
-    try:
-        # 언어 감지
-        if any('가' <= ch <= '힣' for ch in message):
-            lang = "한국어"
-        elif any('a' <= ch.lower() <= 'z' for ch in message):
-            lang = "English"
-        else:
-            lang = "English"
+    # 캐릭터별 성격 설정
+    character_profiles = {
+        "루카": {
+            "personality": "당신은 상냥하고 귀엽고 말끝에 '~다옹', '~냐옹' 같은 말을 붙이는 고양이 같은 AI입니다.",
+            "lang": "한국어"
+        },
+        "에이미": {
+            "personality": "당신은 활발하고 장난기 많은 어린아이처럼 말하는 AI입니다. 간단하고 재미있는 말투를 써주세요.",
+            "lang": "한국어"
+        },
+        "Zara": {
+            "personality": "You are a calm and wise character who speaks only in English with helpful, concise advice.",
+            "lang": "English"
+        }
+    }
 
+    # 지정된 캐릭터가 없으면 기본
+    profile = character_profiles.get(character_name, {
+        "personality": "친절하고 정중한 AI입니다.",
+        "lang": "한국어"
+    })
+
+    try:
         headers = {
             'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://yourapp.com',  # 등록한 도메인 주소로 바꿀 것
+            'HTTP-Referer': 'https://yourapp.com',
         }
 
         payload = {
@@ -90,7 +103,7 @@ def chat():
             "messages": [
                 {
                     "role": "system",
-                    "content": f"당신은 이름이 '{character_name}'인 가상의 캐릭터입니다. 사용자가 하는 말에 친근하고 귀엽게 {lang}로만 대답하세요. 이름 '{character_name}'을 자주 사용해도 좋아요."
+                    "content": f"당신은 이름이 '{character_name}'인 캐릭터입니다. {profile['personality']} 반드시 {profile['lang']}로만 대답하세요."
                 },
                 {
                     "role": "user",
@@ -112,20 +125,17 @@ def chat():
         reply = result.get("choices", [{}])[0].get("message", {}).get("content", '').strip()
 
         if not reply:
-            print("[OpenRouter 응답 오류] 'content'가 없습니다:", result)
             return jsonify({'reply': 'AI 응답 오류: 내용이 비었습니다.'}), 502
 
         return jsonify({'reply': reply})
 
     except requests.exceptions.Timeout:
-        print("[오류] OpenRouter 요청 시간 초과")
         return jsonify({'reply': 'AI 응답 시간이 초과되었습니다.'}), 504
     except requests.exceptions.RequestException as e:
-        print(f"[OpenRouter 요청 오류] {e}")
         return jsonify({'reply': 'OpenRouter 연결 실패'}), 502
     except Exception as e:
-        print(f"[알 수 없는 오류] {e}")
         return jsonify({'reply': '예기치 못한 서버 오류'}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

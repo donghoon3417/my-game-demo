@@ -113,10 +113,14 @@ state.chatInput.addEventListener('keydown', (e) => {
 
 // 초기 위치 설정
 document.addEventListener('DOMContentLoaded', () => {
-  const rect = state.character.getBoundingClientRect();
-  const parentRect = state.gameArea.getBoundingClientRect();
-  state.characterX = rect.left - parentRect.left;
-  state.characterY = rect.top - parentRect.top;
+  const gameAreaWidth = state.gameArea.clientWidth;
+  const gameAreaHeight = state.gameArea.clientHeight;
+
+  // 초기 위치를 비율로 계산 (50%, 50%)
+  state.characterX = gameAreaWidth * 0.5 - state.character.clientWidth / 2;
+  state.characterY = gameAreaHeight * 0.5 - state.character.clientHeight / 2;
+
   state.character.style.left = `${state.characterX}px`;
   state.character.style.top = `${state.characterY}px`;
 });
+

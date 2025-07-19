@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, emit
 app = Flask(__name__, static_folder='public')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
+# 캐릭터 위치 초기화
 position = {
     'x': 0.1,
     'y': 0.1,
@@ -69,17 +70,33 @@ def chat():
         return jsonify({'reply': '서버 설정 오류: API 키 없음'}), 500
 
     try:
+        # 언어 감지
+        if any('가' <= ch <= '힣' for ch in message):
+            lang = "한국어"
+        elif any('a' <= ch.lower() <= 'z' for ch in message):
+            lang = "English"
+        else:
+            lang = "English"
+
         headers = {
             'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://yourapp.com',  # OpenRouter에 등록된 앱 주소로 교체 가능
         }
 
         payload = {
-           "model": "mistralai/mistral-7b-instruct",  # 모델명 명시적으로 지정
+            "model": "mistralai/mistral-7b-instruct",
             "messages": [
-                {"role": "system", "content": "너는 친절한 게임 속 캐릭터야."},
-                {"role": "user", "content": message}
-            ]
+                {
+                    "role": "system",
+                    "content": f"당신은 {lang}로만 대답하는 친절한 AI입니다. 반드시 {lang}로만 응답하세요."
+                },
+                {
+                    "role": "user",
+                    "content": message
+                }
+            ],
+            "temperature": 0.7
         }
 
         response = requests.post(
@@ -91,7 +108,7 @@ def chat():
         response.raise_for_status()
 
         result = response.json()
-        reply = result.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
+        reply = result.get("choices", [{}])[0].get("message", {}).get("content", '').strip()
 
         if not reply:
             print("[OpenRouter 응답 오류] 'content'가 없습니다:", result)
